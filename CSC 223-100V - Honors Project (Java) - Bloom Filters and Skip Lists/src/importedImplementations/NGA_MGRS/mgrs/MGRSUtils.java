@@ -1,0 +1,103 @@
+package importedImplementations.NGA_MGRS.mgrs;
+
+import importedImplementations.NGA_MGRS.mgrs.mil.nga.grid.GridUtils;
+import importedImplementations.NGA_MGRS.mgrs.mil.nga.grid.Hemisphere;
+
+/**
+ * Military Grid Reference System utilities
+ * 
+ * @author wnewman
+ * @author osbornb
+ */
+public class MGRSUtils {
+
+	/**
+	 * Validate the zone number
+	 * 
+	 * @param number
+	 *            zone number
+	 */
+	public static void validateZoneNumber(int number) {
+		if (number < MGRSConstants.MIN_ZONE_NUMBER
+				|| number > MGRSConstants.MAX_ZONE_NUMBER) {
+			throw new IllegalArgumentException("Illegal zone number (expected "
+					+ MGRSConstants.MIN_ZONE_NUMBER + " - "
+					+ MGRSConstants.MAX_ZONE_NUMBER + "): " + number);
+		}
+	}
+
+	/**
+	 * Validate the band letter
+	 * 
+	 * @param letter
+	 *            band letter
+	 */
+	public static void validateBandLetter(char letter) {
+		if (letter < MGRSConstants.MIN_BAND_LETTER
+				|| letter > MGRSConstants.MAX_BAND_LETTER
+				|| GridUtils.isOmittedBandLetter(letter)) {
+			throw new IllegalArgumentException(
+					"Illegal band letter (CDEFGHJKLMNPQRSTUVWX): " + letter);
+		}
+	}
+
+	/**
+	 * Get the next band letter
+	 * 
+	 * @param letter
+	 *            band letter
+	 * @return next band letter, 'Y' ({@link MGRSConstants#MAX_BAND_LETTER} + 1)
+	 *         if no next bands
+	 */
+	public static char nextBandLetter(char letter) {
+		validateBandLetter(letter);
+		letter++;
+		if (GridUtils.isOmittedBandLetter(letter)) {
+			letter++;
+		}
+		return letter;
+	}
+
+	/**
+	 * Get the previous band letter
+	 * 
+	 * @param letter
+	 *            band letter
+	 * @return previous band letter, 'B' ({@link MGRSConstants#MIN_BAND_LETTER}
+	 *         - 1) if no previous bands
+	 */
+	public static char previousBandLetter(char letter) {
+		validateBandLetter(letter);
+		letter--;
+		if (GridUtils.isOmittedBandLetter(letter)) {
+			letter--;
+		}
+		return letter;
+	}
+
+	/**
+	 * Get the label name
+	 * 
+	 * @param zoneNumber
+	 *            zone number
+	 * @param bandLetter
+	 *            band letter
+	 * @return name
+	 */
+	public static String getLabelName(int zoneNumber, char bandLetter) {
+		return String.valueOf(zoneNumber) + bandLetter;
+	}
+
+	/**
+	 * Get the hemisphere from the band letter
+	 * 
+	 * @param bandLetter
+	 *            band letter
+	 * @return hemisphere
+	 */
+	public static Hemisphere getHemisphere(char bandLetter) {
+		return bandLetter < MGRSConstants.BAND_LETTER_NORTH ? Hemisphere.SOUTH
+				: Hemisphere.NORTH;
+	}
+
+}
