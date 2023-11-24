@@ -4,12 +4,12 @@ CSC 223-100V - Honors Project (Java) - Bloom Filters and Skip Lists
 * Introduction and background *
 --------------------------------------------------------------------------------
 
-My Honors Project for CSC 223-100V in Fall 2023 semester,
-at Laurel Ridge Community College. This class is the capstone of my Associate 
-of Science: Computer Science degree from Laurel Ridge. I hope to continue my 
-studies at George Mason University in Fall 2024, in their Computer Science 
-department, culminating in a Bachelor’s degree in Computer Science. Any 
-graduate studies will depend on my situation and financial needs at that time.
+This is my Honors Project for CSC 223-100V in Fall 2023 semester, at Laurel 
+Ridge Community College. This class is the capstone of my Associate of Science: 
+Computer Science degree from Laurel Ridge. I hope to continue my studies at 
+George Mason University in Fall 2024, in their Computer Science department, 
+culminating in a Bachelor’s degree in Computer Science. Any graduate studies 
+will depend on my situation and financial needs at that time.
 
 CSC 223 is an intro to C++, but this special Honors Project is in Java, which I 
 learned in Spring 2023, in CSC 222. By using Java instead of C++ for this 
@@ -69,7 +69,7 @@ Please, do not let my own crude skills reflect poorly on the hard work and
 demonstrable skills of each of the contributors to the projects that make up 
 the vast bulk of the source code and execution time of this Honors Project. 
 
-See the “Credits for imported implementations” section below for the 
+See the “Credits for Imported Implementations” section below for the 
 repositories, their URIs, and their contributors, which I used for implementing
  the data structures of my project; take heed also of my “Legal Notice: 
 Copyright Disclaimer” section within it.
@@ -86,7 +86,7 @@ Placeholder text. Will elaborate in a later commit.
 
 
 ****************************************
-* Credits for imported implementations *
+* Credits for Imported Implementations *
 --------------------------------------------------------------------------------
 
 **************************************
@@ -243,3 +243,97 @@ https://github.com/tzaeschke
 http://tzaeschke.github.io/ 
 (Check it out: They are “Pro” level on GitHub, with 9 total Achievements in 6 
 different categories! I am impressed. *thumbs up*)
+
+Christophe Schmaltz, A.K.A. chris0385
+https://github.com/chris0385
+
+Bogdan Vancea, A.K.A. bvancea
+https://github.com/bvancea
+
+--------------------------------------------------------------------------------
+----  The blank lines below are to aid me in keeping the last line of this  ----
+----  file vertically centered and above the very bottom of my very large   ---- 
+----  monitor.                                                              ----
+--------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
