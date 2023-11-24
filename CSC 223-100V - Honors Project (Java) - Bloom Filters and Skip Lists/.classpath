@@ -7,5 +7,14 @@
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry excluding="src/" kind="src" path=""/>
+	<classpathentry kind="lib" path="C:/Users/sunda/.m2/repository/ch/ethz/globis/phtree/phtree/2.8.0/phtree-2.8.0.jar" sourcepath="C:/Users/sunda/.m2/repository/ch/ethz/globis/phtree/phtree/2.8.0/phtree-2.8.0-sources.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="ch.ethz.globis.phtree"/>
+			<attribute name="maven.artifactId" value="phtree"/>
+			<attribute name="maven.version" value="2.8.0"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

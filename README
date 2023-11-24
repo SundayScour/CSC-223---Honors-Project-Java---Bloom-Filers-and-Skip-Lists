@@ -2,6 +2,7 @@ CSC 223-100V - Honors Project (Java) - Bloom Filters and Skip Lists
 
 *******************************
 * Introduction and background *
+--------------------------------------------------------------------------------
 
 My Honors Project for CSC 223-100V in Fall 2023 semester,
 at Laurel Ridge Community College. This class is the capstone of my Associate 
@@ -20,6 +21,7 @@ data structures may be easier to understand and appreciate.
 
 ***********
 * Purpose *
+--------------------------------------------------------------------------------
 
 The primary purpose of this Honors Project is to write a paper based on an 
 experiment comparing the empirically determined execution times of using Bloom 
@@ -27,31 +29,31 @@ Filters and Skip Lists, in combination, as a data structure for spatial (point)
 data indexing and CRUD-ing, instead of and in comparison to, more traditional 
 data structures such as R-Trees, for example.
 
-The hypothesis is that since Bloom Filters are so fast at excluding data queries
- which are outside The Data Set and since Skip Lists are so fast at indexing 
-data within The Data Set, then, by using Bloom Filters as the first layer and 
-Skip Lists as the second layer, together they can outperform an R-Tree which has
- indexed the exact same set of data members.
+The hypothesis is that since Bloom Filters are so fast at excluding data queries 
+which are outside The Data Set and since Skip Lists are so fast at indexing data 
+within The Data Set, then, by using Bloom Filters as the first layer and Skip 
+Lists as the second layer, together they can outperform an R-Tree which has 
+indexed the exact same set of data members.
 
 There is a secondary purpose in addition to, and in support of, the primary 
 purpose. This secondary purpose is to gain some basic proficiency, or at least 
-experience, in using projects and code from authors other than myself. Because 
-I have little to no experience in doing that, thus far, a project such as this 
-can help me gain real-world and hands-on experience to complement my academic 
-studies.
+experience, in using projects and code from authors other than myself. Because I
+ have little to no experience in doing that, thus far, a project such as this 
+can help me gain real-world and hands-on experience to complement my academic
+ studies.
 
 To that end, for most of the data structure implementations, I am using Java 
 code from public GitHub repositories, in addition to Java’s own built-in 
-libraries. Given my own inexperience and the timescales and deadlines involved 
-in this project, I regret that I did not properly include these external 
-resources in my Eclipse IDE project. I have very little experience in using Git,
- and none at all in using any build tools such as Maven or Gradle.
+libraries. Given my own inexperience and the timescale and deadlines involved in
+ this project, I regret that I did not properly include these external resources
+ in my Eclipse IDE project. I have very little experience in using Git, and none
+ at all in using any build tools such as Maven or Gradle.
 
 The end result of the above mentioned fact is that rather than use the 
 configurations that came in these repositories to properly and seamlessly 
 integrate the capabilities of these projects into my own, I did a very clumsy, 
-gross, and brutal “hack job” to get the features I needed included and usable 
-in this Honors Project.
+gross, and brutal “hack job” to get the features I needed included and usable in
+ this Honors Project.
 
 To wit, I simply made a Java package in the root “src” folder named “imported 
 implementations”. Within this package, I made subpackages for each of the 
@@ -64,25 +66,56 @@ and change their import commands. This would have been absolutely undoable
 without Eclipse IDE’s wonderful “Organize imports” feature.
 
 Please, do not let my own crude skills reflect poorly on the hard work and 
-demonstrable skills of each of the contributors to the projects that make up the
- vast bulk of the source code and execution time of this Honors Project. See the
- “Credits for imported implementations” section below for the repositories, 
-their URIs, and their contributors, which I used for implementing the data 
-structures of my project. 
+demonstrable skills of each of the contributors to the projects that make up 
+the vast bulk of the source code and execution time of this Honors Project. 
+
+See the “Credits for imported implementations” section below for the 
+repositories, their URIs, and their contributors, which I used for implementing
+ the data structures of my project; take heed also of my “Legal Notice: 
+Copyright Disclaimer” section within it.
 
 (NOTE: Many of these projects themselves used other projects, and so on, ad 
-infinitum; see each repository for full details.)
+infinitum; see each repository for full details. See my L)
 
 
 *****************************
 * Execution and Methodology *
+--------------------------------------------------------------------------------
 
-Placeholder text
+Placeholder text. Will elaborate in a later commit.
 
 
 ****************************************
 * Credits for imported implementations *
+--------------------------------------------------------------------------------
 
+**************************************
+* Legal Notice: Copyright Disclaimer *
+********************************************************************************
+*                                                                              *
+* I am not a lawyer, just a computer science student with a project.           *
+*                                                                              *
+* As such:                                                                     *
+*                                                                              *
+* - I DO NOT OWN ANY OF THE IMPLEMENTATIONS BELOW.                             *
+*                                                                              *
+* - I NEITHER make Copyright claims to these implementations linked below and  *
+*   used in this project, NOR do I intend any Copyright infringement by my     *
+*   usage in this Honors Project and resulting GitHub public repository.       *
+*                                                                              *
+* - If there are, will be, or ever have been ANY issues with my use of the     *
+*   GitHub repositories listed below, PLEASE LET ME AND THE COPYRIGHT HOLDERS  *
+*   KNOW, as soon as possible. I will do what I can to rectify the situation,  *
+*   to the best of my ability.                                                 *
+*                                                                              *
+* - I can be reached at either these email addresses:                          *
+*        jedwards0076@email.vccs.edu                                           *
+*        sunday_scour@aol.com                                                  *
+*                                                                              *
+********************************************************************************
+
+
+TL;DR = All credits and legal rights belong to the rightful owner(s).
 
 
 *-------*
@@ -164,7 +197,6 @@ https://github.com/ArpitaAgrawal1305
 *----------------*
 - Bloom Filters: -
 *----------------*
-
 (NOTE: I used and compared two different implementations. See my remarks as to 
 why below each project.)
 
@@ -188,3 +220,26 @@ https://github.com/sangupta/bloomfilter.git
 
 Sandeep Gupta, A.K.A. sangupta
 https://github.com/sangupta
+
+
+
+
+*--------*
+- R-Tree -
+*--------*
+(NOTE: This GitHub repository is MASSIVE and has a HUGE number of data 
+structures within it. I would love to dig into it more in the future. This 
+author, Tilmann, A.K.A. tzaeschke, obviously has immense talent and dedication. 
+I am very grateful they chose to put such a valuable resource into a PUBLIC 
+repository on GitHub!)
+
+TinSpin - Indexes
+https://github.com/tzaeschke/tinspin-indexes 
+
+--- Authored by
+
+Tilmann, ( zoodb@gmx.de ) A.K.A. tzaeschke
+https://github.com/tzaeschke 
+http://tzaeschke.github.io/ 
+(Check it out: They are “Pro” level on GitHub, with 9 total Achievements in 6 
+different categories! I am impressed. *thumbs up*)
