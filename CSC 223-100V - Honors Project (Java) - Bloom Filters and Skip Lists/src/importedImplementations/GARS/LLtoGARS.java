@@ -77,8 +77,8 @@ public class LLtoGARS {
      * code.<br>Each 30-minute cell is divided into four 15-minute by 15-minute
      * quadrants. The quadrants are numbered sequentially, from west to east,
      * starting with the northernmost band. Specifically, the northwest quadrant
-     * is “1”; the northeast quadrant is “2”; the southwest quadrant is “3”; the
-     * southeast quadrant is “4”.
+     * is "1"; the northeast quadrant is "2"; the southwest quadrant is "3"; the
+     * southeast quadrant is "4".
      * <p>
      *
      * @param latitude as double in degrees decimal

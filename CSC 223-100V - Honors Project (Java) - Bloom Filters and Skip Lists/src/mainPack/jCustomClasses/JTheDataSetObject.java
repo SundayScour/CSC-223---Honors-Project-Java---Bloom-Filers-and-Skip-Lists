@@ -7,31 +7,40 @@ import importedImplementations.GARS.GARStoLL;
 import importedImplementations.NGA_MGRS.mgrs.MGRS;
 import importedImplementations.NGA_MGRS.mgrs.mil.nga.grid.features.Point;
 
+import mainPack.jCustomClasses.*;
 
+/**
+ * 
+ */
 public class JTheDataSetObject
 {
-  /**
-   * The two types of Strings an object can pass into the hashing functions 
-   */
-  public enum JHashType
-  {
-    GARS,
-    MGRS,
-    LATLON
-  }
+  // Min., max. for Latitude (in decimal degrees)
+  public static final double MIN_LAT =    -90.0;
+  public static final double MAX_LAT =     90.0;
+  
+  // Min., max. for Longitude (in decimal degrees)
+  public static final double MIN_LON =   -180.0;
+  public static final double MAX_LON =    180.0;
+  
+  // Min., max. for Altitude (in meters)
+  public static final int    MIN_ALT =        0;
+  public static final int    MAX_ALT =  999_999; // 0 to 999 Kilometers
   
   /**
    * The object's Latitude, in decimal degrees.
+   * @range -90.0º <= myLat <= 90.0º
    */
   private double myLat;
   
   /**
    * The object's Longitude, in decimal degrees.
+   * @range -180.0º <= myLon < 180.0º
    */
   private double myLon;
   
   /**
    * The object's Altitude, measured in meters.
+   * @range 0 meters <= myAlt <= 999999 meters.
    */
   private int myAlt;
   
@@ -87,6 +96,8 @@ public class JTheDataSetObject
     this.myLat  = inLat;
     this.myLon  = inLon;
     this.myAlt  = inAlt;
+    this.enforceRanges();
+    
     this.myGARS = LLtoGARS.getGARS(myLat, myLon);
     
     // Temporary objects used only to construct the MGRS object and get its code as a String.
@@ -101,14 +112,52 @@ public class JTheDataSetObject
     this.isValid = true;
   }
   
+  /** 
+   * Enforce ranges using constants
+   */
+  private void enforceRanges()
+  {
+    if (myLat < MIN_LAT)
+    {
+      myLat = MIN_LAT;
+    }
+    else if (myLat > MAX_LAT)
+    {
+      myLat = MAX_LAT;
+    }
+    
+    if (myLon < MIN_LON)
+    {
+      myLon = MIN_LON;
+    }
+    else if (myLon > MAX_LON)
+    {
+      myLon = MAX_LON;
+    }
+    
+    if (myAlt < MIN_ALT)
+    {
+      myAlt = MIN_ALT;
+    }
+    else if (myAlt > MAX_ALT)
+    {
+      myAlt = MAX_ALT;
+    }
+  }
+
+  public void setHashType(JHashType newType)
+  {
+    this.myHashType = newType;
+  }
+    
   /**
    * 
-   * @return 
+   * @return The Hash String, unique to the object, used as key in Bloom Filters and Skip Lists
    */
   public String toHashString()
   {
     String strOut = "";
-    String strMyAlt = String.format("%07d", this.getMyAlt());
+    String strMyAlt = String.format("%06d", this.getMyAlt());
     
     switch (myHashType)
     {
@@ -135,6 +184,22 @@ public class JTheDataSetObject
     return strOut;
   }
   
+//  @ Override
+//  public String toString()
+//  {
+//    String strOut = "";
+//    
+//    return strOut;
+//  }
+  
+  @Override
+  public String toString()
+  {
+    return "JTheDataSetObject [myLat=" + myLat + ", myLon=" + myLon + ", myAlt="
+        + myAlt + ", myGARS=" + myGARS + ", myMGRS=" + myMGRS + ", myPay="
+        + myPay + ", myHashType=" + myHashType + ", isValid=" + isValid + "]";
+  }
+
   // Eclipse generated getters and setters:
   /**
    * @return the myLat field
