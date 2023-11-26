@@ -14,9 +14,14 @@
 
 package mainPack.jCustomClasses;
 
+/* ****************************************************************************************************************************************/
+/* **** Imports ***************************************************************************************************************************/
+/* ****************************************************************************************************************************************/
+
+
 import java.util.Iterator;
 import java.util.ListIterator;
-/**
+/*
  * Java library imports
  */
 import java.util.Random;
@@ -28,7 +33,7 @@ import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 
-/**
+/*
  * Imported Implementations
  */
 
@@ -62,13 +67,26 @@ import mainPack.jCustomClasses.*;
  */
 public class JTestBench
 {
-  /**
+  
+/* ****************************************************************************************************************************************/
+/* **** Declarations and Variables ********************************************************************************************************/
+/* ****************************************************************************************************************************************/
+
+  /*
    * JTestBench instance values
    */
+ 
+  /**
+   * Curated Random class object seed for repeatability
+   */
+  private long    mySeed  = 0;          // "Keep it secret, keep it safe...", but not really; it just needs to stay the same.
   
   
   /**
-   * Will become a Random object with seed mySeed, each time a Random needs to start fresh.
+   * The Random object to pass around where needed.
+   * 
+   * @Note Will become a Random object with seed mySeed, each
+   *       time a Random needs to start fresh.
    */
   private Random  tbRng;
   
@@ -98,7 +116,12 @@ public class JTestBench
    */
   int     sizeLBloom;
   
-  boolean doesItFail; // To determine whether a given object in The Data Set goes into Test Set, based on myFailRate
+  /**
+   * To determine whether a given object in The Data Set goes into Test Set, based on myFailRate
+   * 
+   * @Note Used only in doCreate() method
+   */
+  boolean doesItFail; 
   
   /**
    * Keep count of number of Bad entries, i.e. number of objects in Test Set NOT IN The Data Set
@@ -110,7 +133,7 @@ public class JTestBench
    */
   long numFails;
   
-  /**
+  /*
    * Limit constants
    */
   public static final int     MIN_POWER = 1;  // No less than 10**1 =          10 Objects in a set
@@ -137,22 +160,63 @@ public class JTestBench
   // The bean for counting...
   private ThreadMXBean myBenchBean = null; // ...but it's not ready for counting yet.
   
+  /* Timers for each phase of testing */
   /**
    * Timers for each phase of testing
+   * 
+   * A Creation timestamp.
    */
   private long timeCreateStart  = 0;
+  /**
+   * Timers for each phase of testing
+   * 
+   * A Creation timestamp.
+   */
   private long timeCreateEnd    = 0;
+  /**
+   * Timers for each phase of testing
+   * 
+   * A Creation timestamp.
+   */
   private long timeCreateTotal  = 0;
-  
+  /**
+   * Timers for each phase of testing
+   * 
+   * A Verification timestamp.
+   */
   private long timeVerifyStart  = 0;
+  /**
+   * Timers for each phase of testing
+   * 
+   * A Verification timestamp.
+   */
   private long timeVerifyEnd    = 0;
+  /**
+   * Timers for each phase of testing
+   * 
+   * A Verification timestamp.
+   */
   private long timeVerifyTotal  = 0;
-  
+  /**
+   * Timers for each phase of testing
+   * 
+   * A Modification timestamp.
+   */
   private long timeModifyStart  = 0;
+  /**
+   * Timers for each phase of testing
+   * 
+   * A Modification timestamp.
+   */
   private long timeModifyEnd    = 0;
+  /**
+   * Timers for each phase of testing
+   * 
+   * A Modification timestamp.
+   */
   private long timeModifyTotal  = 0;
   
-  /**
+  /*
    * Configuration options for each created instance of JTestBench
    */
   
@@ -162,24 +226,71 @@ public class JTestBench
   private JSkipListType mySkip      = JSkipListType.LP2;
   private JBenchSetType myBenchSet  = JBenchSetType.LBloomGARSLP2;
   
-  /* THE FULL SETS (separate from the actual storage data structure implementation object instantiations) */
-  Stack<JTheDataSetObject>                TheDataSet; // The Data Set™
-  Stack<JTheDataSetObject>                TestSet;    // Test Set for this Bench
-  
-  // Percentage of The Data Set objects that will NOT Test Set...
-  private int           myFailRate; // ...as an int...
-  private double        myFRate;    // ...as a double.
-  
-  LovaBloomFilter                         lovaBloom;        // Lovasoa Bloom Filter for this Bench
-  InMemoryBloomFilter<JTheDataSetObject>  sangBloom;        // Sangupta Bloom Filter for this Bench
-  SkipList<JTheDataSetObject>             LP2Skip;         // Skip List for this Bench
-  
-  PrintStream ot;     // Short alias for console output
-  Scanner     n;      // Short alias for console input
-  String      trash;  // Discard bad input
-
-  
   /**
+   * THE FULL SET: The Data Set™
+   * 
+   * @Note Separate from the actual storage data structure
+   *       implementation object instantiations to facilitate
+   *       double-checking the imported implementations as to
+   *       whether I am using them properly.
+   * @Note Implemented as a Java Collection Stack
+   */
+  Stack<JTheDataSetObject>                TheDataSet;
+  /**
+   * Test Set for this Bench
+   * 
+   * @Note Implemented as a Java Collection Stack
+   */
+  Stack<JTheDataSetObject>                TestSet; 
+  /**
+   * Temporary data set object for creating all the various sets
+   */
+  JTheDataSetObject tmpObj; 
+  /**
+   * Temporary data set object that is outide of The Data Set,
+   * to be put into Test Set to fill the quota for a given myFailRate.
+   */
+  JTheDataSetObject tmpObjFail;  
+  /**
+   * Percentage of The Data Set objects that will NOT Test Set...
+   * 
+   * @Note ...as an int...
+   */
+  private int           myFailRate; // ...as an int...
+  /**
+   * Percentage of The Data Set objects that will NOT Test Set...
+   * 
+   * @Note ...as a double.
+   */
+  private double        myFRate;    // ...as a double.
+  /**
+   * Lovasoa Bloom Filter for this Bench
+   */
+  LovaBloomFilter                         lovaBloom;
+  /**
+   * Sangupta Bloom Filter for this Bench
+   */
+  InMemoryBloomFilter<JTheDataSetObject>  sangBloom;
+  /**
+   * Skip List for this Bench
+   */
+  SkipList<JTheDataSetObject>             LP2Skip;
+  /**
+   * A short alias for console output
+   */
+  PrintStream ot;
+  /**
+   * A short alias for console input
+   */
+  Scanner     n;
+  /**
+   * A temporary String used for processing input.
+   * 
+   * @Note Used only by (PrintStream) n to discard bad input
+   */
+  String      trash;
+  
+  /*
    *  The orders of magnitude of the size of The Data Set and Test Set. They will all be tried and times recorded.
    */
   private int powersOf10Start = 0;  // Where to start the series of runs for a given Bench
@@ -191,11 +302,10 @@ public class JTestBench
   private int potEnd          = 0;  // Expanded form of powersOf10End  , i.e. 10 ** powersOf10End
   
   private int potCurr         = 0;  // Expanded form of current size of the sets. TODO: iterate this variable over powersOf10Range
-  
-  /**
-   * Curated Random class object seed for repeatability
-   */
-  private long    mySeed  = 0;          // "Keep it secret, keep it safe...", but not really; it just needs to stay the same.
+    
+/* ****************************************************************************************************************************************/
+/* **** Methods ***************************************************************************************************************************/
+/* ****************************************************************************************************************************************/
   
   /**
    * 
@@ -366,7 +476,6 @@ public class JTestBench
     this.bitsPerObj  = LOVASOA_BLOOM_BITS_PER_OBJECT; // Number of bits per object in a Lovasoa Bloom Filter
     this.sizeLBloom  = sizeSet * bitsPerObj;         // Size passed into Lovasoa Bloom Filters
     
-    boolean doesItFail; // To determine whether a given object in The Data Set goes into Test Set, based on myFailRate 
     
         
     /**
@@ -433,10 +542,6 @@ public class JTestBench
   {
     numBads  = 0;
         
-    JTheDataSetObject tmpObj      = null; // Temporary data set object for creating all the various sets
-    JTheDataSetObject tmpObjFail  = null; // Temporary data set object that is outide of The Data Set, 
-                                          // to be put into Test Set to fill the quota for a given myFailRate.
-    
     /**
      * Create a Bloom Filter for this JTestBench object, to quickly eliminate objects NOT in The Data Set.
      * 
@@ -654,7 +759,10 @@ public class JTestBench
   
 }
 
-/* Archived code, for future reference: */
+/* ****************************************************************************************************************************************/
+/* **** Archived code, for future reference: **********************************************************************************************/
+/* ****************************************************************************************************************************************/
+
 //switch (myBenchSet)
 //{
 //case LBloomGARSLP2:
