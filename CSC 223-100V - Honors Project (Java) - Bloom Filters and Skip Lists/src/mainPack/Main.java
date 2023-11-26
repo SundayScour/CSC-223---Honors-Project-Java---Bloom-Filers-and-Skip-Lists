@@ -66,14 +66,14 @@ public class Main
     
 //    testRandFail(seed, o);
     
-    strt  = 2;
-    nd    = 2;
+    strt  = 3;
+    nd    = 3;
     b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 7);
     b1.startup();
     
     myPause();
     
-    b2 = new JTestBench(seed, JBloomType.Sangupta, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 7);
+    b2 = new JTestBench(seed, JBloomType.Sangupta, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 25);
     b2.startup();
     
     i.close();
@@ -94,7 +94,7 @@ public class Main
   {
     Random rng = new Random(seed);
     boolean tf;
-    int numRuns = 100000;
+    int numRuns = 100_000;
     double trueFailRate = -0.0;
     
     int failCount = 0;

@@ -63,25 +63,19 @@ import importedImplementations.TinSpinIndexes.index.rtree.RTree;
 import mainPack.jCustomClasses.*;
 
 /**
+ * A class whose instatiations can be used for "Benchmark Testing", hence the name.
  * 
+ * @Note This class is where nearly all of this Java program's execution time is spent
  */
 public class JTestBench
-{
-  
+{  
 /* ****************************************************************************************************************************************/
 /* **** Declarations and Variables ********************************************************************************************************/
 /* ****************************************************************************************************************************************/
-
-  /*
-   * JTestBench instance values
-   */
- 
   /**
    * Curated Random class object seed for repeatability
    */
   private long    mySeed  = 0;          // "Keep it secret, keep it safe...", but not really; it just needs to stay the same.
-  
-  
   /**
    * The Random object to pass around where needed.
    * 
@@ -89,50 +83,46 @@ public class JTestBench
    *       time a Random needs to start fresh.
    */
   private Random  tbRng;
-  
   /**
    * The size of the sets for a given run
    */
   private int     sizeSet;
-  
   /**
    * The False Positvity Rate needed to instantiate a Sangupta Bloom Filter
    * 
    * @Note This is determined by (static final) SANGUPTA_BLOOM_FALSE_POSITIVE_RATE
    */
   double  fPosRate;
-  
   /**
    * The Bits per Object needed to instantiate a Lovasoa Bloom Filter
    * 
    * @Note This is determined by (static final) LOVASOA_BLOOM_BITS_PER_OBJECT
    */
   int     bitsPerObj;
-  
   /**
    * The actual constructed size of a Lovasoa Bloom Filter
    * 
    * @Note This is calulated as (bitsPerObj * sizeSet)
    */
   int     sizeLBloom;
-  
   /**
    * To determine whether a given object in The Data Set goes into Test Set, based on myFailRate
    * 
    * @Note Used only in doCreate() method
    */
   boolean doesItFail; 
-  
   /**
-   * Keep count of number of Bad entries, i.e. number of objects in Test Set NOT IN The Data Set
+   * Used to keep count of number of Bad entries, i.e. number of objects in Test Set NOT IN The Data Set
+   * 
+   * @Note Used onlt in Creation phase
    */
   long numBads;
-  
   /**
-   * Keep count of number of misses in the Skip List for objects not found
+   * Used to keep count of number of misses in the Skip List for objects not found
+   * 
+   * @Note Used only in Verification phase
    */
   long numFails;
-  
   /*
    * Limit constants
    */
@@ -433,15 +423,24 @@ public class JTestBench
     this.TheDataSet       = new Stack<JTheDataSetObject>();
     this.TestSet          = new Stack<JTheDataSetObject>();
     
+//    if (myBloom == JBloomType.Sangupta)
+//    {
+//      this.sangBloom = new InMemoryBloomFilter<JTheDataSetObject>(sizeSet, fPosRate);
+//    }
+//    else
+//    {
+//      this.lovaBloom = new LovaBloomFilter(sizeSet, sizeLBloom);
+//    }
+
+    
     // Instantiate objects for console input/output
     this.ot     = new PrintStream(System.out);
     this.n      = new Scanner(System.in);
     this.trash = "";
     
-    
-    /**
+    /*
      * All done constructing this particular instance/instantiation of a JTestBench object.
-     * @Note It is valid.
+     * It is valid.
      */
     this.isValid          = true;
   }
@@ -518,9 +517,9 @@ public class JTestBench
     this.fPosRate    = SANGUPTA_BLOOM_FALSE_POSITIVE_RATE; // False positivity rate in a Sangupta Bloom Filter
     this.bitsPerObj  = LOVASOA_BLOOM_BITS_PER_OBJECT; // Number of bits per object in a Lovasoa Bloom Filter
     this.sizeLBloom  = sizeSet * bitsPerObj;         // Size passed into Lovasoa Bloom Filters
+
     
     
-        
     /**
      * Time the Creation of the data sets.
      */
@@ -547,7 +546,6 @@ public class JTestBench
      */
     this.shutdown();
   }
-  
   /**
    * Converts (JGridSysType) this.myGrid to a JHashType
    * 
@@ -563,7 +561,6 @@ public class JTestBench
     }
     return outType;
   }
-  
   /**
    * Abstracted way to add object o into the correct Bloom.
    * 
@@ -571,27 +568,34 @@ public class JTestBench
    */
   private void addToBloom (JTheDataSetObject o)
   {
-    switch (myBloom)
+    try
     {
-      case Lovasoa:   {lovaBloom.add(o);}
-      case Sangupta:  {sangBloom.add(o);}
+      switch (myBloom)
+      {
+        case Lovasoa:   {this.lovaBloom.add(o); break;}
+        case Sangupta:  {this.sangBloom.add(o); break;}
+      }
+    } catch (Exception e)
+    {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
   }
-  
   /**
    * Create this JTestBench run's data sets.
    */
   private void doCreate()
   {
     numBads  = 0;
-        
+    int numGoods = 0;
+    
     /**
      * Create a Bloom Filter for this JTestBench object, to quickly eliminate objects NOT in The Data Set.
      * 
      * @Note Construct and initialize the correct Bloom Filter, based on (JBloomType) myBloom. 
      */
-    if (this.myBloom == JBloomType.Sangupta)  {sangBloom = new InMemoryBloomFilter<JTheDataSetObject>(sizeSet, fPosRate);}
-    else                                      {lovaBloom = new LovaBloomFilter(sizeSet, sizeLBloom);}
+    if (this.myBloom == JBloomType.Sangupta)  {this.sangBloom = new InMemoryBloomFilter<JTheDataSetObject>(sizeSet, fPosRate);}
+    else                                      {this.lovaBloom = new LovaBloomFilter(sizeSet, sizeLBloom);}
     
     /**
      * Create a Skip List to contain The Data Set
@@ -634,15 +638,18 @@ public class JTestBench
       else
       {
         TestSet.push(tmpObj);
+        numGoods++;
       }
       
       /* Clear out the temporaries */
       tmpObj      = null;
       tmpObjFail  = null;
       
-      /* Diagnostic: Output the number of "Bad" objects */
-      ot.println("Number of \"Bad\" entries in Test Set: " + numBads);
     }
+    /* Diagnostic: Output the number of "Bad" objects */
+    ot.println(String.format("Number of \"Bad\" entries in Test Set:  % 4d", numBads));
+    ot.println(String.format("Number of \"Good\" entries in Test Set: % 4d", numGoods)); 
+
   }
 
   /**
@@ -655,114 +662,20 @@ public class JTestBench
    */
   private void doVerify()
   {
-    numFails = 0; // 
-    
-//    boolean     inSet;
-//    JTheDataSetObject tob = null;
-//
-//    switch (myBenchSet)
-//    {
-//      case LBloomGARSLP2:
-//      {
-//        long numSkipFails = 0;
-//        long numBloomFails = 0;
-//        ListIterator<JTheDataSetObject> iT = TestSet.listIterator();
-//        while (iT.hasNext())
-//        {
-//          tob = null;
-//          tob = iT.next();
-//          ot.println(tob);
-//          if (lBF.contains(tob)) // If in Bloom Filter
-//          {
-//            // Then find it in the Skip List
-//            inSet = sL.contains(tob);
-//            if (!inSet)
-//            {
-//              //ot.println(inSet);
-//              numSkipFails++;
-//            }
-//          }
-//          else
-//          {
-//            numBloomFails++;
-//          }
-//        }
-//        ot.println("-------");
-//        sL.printList();
-//        ot.println("--------");
-//        ot.println();
-//        ot.println("Number of objects outside of (Lovasoa) The Data Set Skip List:    " + numSkipFails);
-//        ot.println("Number of objects outside of (Lovasoa) The Data Set Bloom Filter: " + numBloomFails);
-//        
-//        break;  
-//      }
-//      case LBloomMGRSLP2:
-//      {
-//        break;
-//      }
-//      case SBloomGARSLP2:
-//      {
-//        long numSkipFails = 0;
-//        long numBloomFails = 0;
-//        ListIterator<JTheDataSetObject> iT = TestSet.listIterator();
-//        while (iT.hasNext())
-//        {
-//          tob = null;
-//          tob = iT.next();
-//          ot.println(tob);
-//          if (sBF.contains(tob)) // If in Bloom Filter
-//          {
-//            // Then find it in the Skip List
-//            inSet = sL.contains(tob);
-//            if (!inSet)
-//            {
-//              //ot.println(inSet);
-//              numSkipFails++;
-//            }
-//          }
-//          else
-//          {
-//            numBloomFails++;
-//          }
-//        }
-//        ot.println("-------");
-//        sL.printList();
-//        ot.println("--------");
-//        ot.println();
-//        ot.println("Number of objects outside of (Sangupta) The Data Set Skip List:    " + numSkipFails);
-//        ot.println("Number of objects outside of (Sangupta) The Data Set Bloom Filter: " + numBloomFails);
-//        break;
-//      }
-//      case SBloomMGRSLP2:
-//      {
-//        break;
-//      }
-//    }
+    numFails = 0;
   }
 
   private void doModify()
   {
-//    switch (myBenchSet)
-//    {
-//      case LBloomGARSLP2:
-//      {
-//        break;  
-//      }
-//      case LBloomMGRSLP2:
-//      {
-//        break;
-//      }
-//      case SBloomGARSLP2:
-//      {
-//        break;
-//      }
-//      case SBloomMGRSLP2:
-//      {
-//        break;
-//      }
-//    }
   }
 
+  /**
+   * Performs the final functions of a given Bench run.
+   * 
+   * @Note Calls outResults to report on all the metrics calculated, 
+   *        which is the point of this ENTIRE PROJECT!
+   * @Note *Cops are here* Time to shut this (Bench)party down! Boo!
+   */
   private void shutdown()
   {
     this.timeCreateTotal = calcCreateTime();
@@ -771,9 +684,10 @@ public class JTestBench
     
     this.outResults();
   }
-  
   /**
+   * Outputs the empirically calculated metrics for the objects used in this JTestBench
    * 
+   * @Note This is literally the ENTIRE POINT of this Honors Project!
    */
   private void outResults()
   {
@@ -784,12 +698,28 @@ public class JTestBench
     
     ot.println("*******************************************************************************************");
   }
-
+  /**
+   * A simple method to timestamp various points of this 
+   * JTestBench object's execution, so as to enable metrics to be calculated empirically.
+   * 
+   * @return (long) The total CPU time for the current thread if CPU timemeasurement is enabled; -1 otherwise.
+   * @Note The @return desription was lifted from the ThreadMXBean Javadocs
+   */
   private long getBeanCount()
   {
     return myBenchBean.getCurrentThreadCpuTime();
   }
-  
+  /**
+   * A CRUCIAL part of the .doCreate() method, enabling a specific fraction of The Data Set to be EXCLUDED from the Test Set. 
+   * 
+   * @param rng (Random) The initialized Random object passed around 
+   *        to allow a carefully curated set of random values, enabling repitiion of data sets
+   * @param myFailRate (double) The probibalistic rate at which objects in The Data Set are excluded from the Test Set
+   * @return (boolean) A boolean vaule used to stochasticaly exclude data in The Data Set from the Test Set
+   * 
+   * @Note Trivia: I am very deeply ashamed that I had to look this algorithm up on a Stack Exchange website:
+   * URI: https://stackoverflow.com/questions/17359834/random-boolean-with-weight-or-bias   * 
+   */
   public static boolean randFail(Random rng, double myFailRate)
   {
     boolean itFailed;
@@ -799,7 +729,6 @@ public class JTestBench
     
     return itFailed;
   }
-  
 }
 
 /* ****************************************************************************************************************************************/
@@ -891,6 +820,93 @@ public class JTestBench
 //  break;
 //}
 //}
+//
+//private void doVerify()
+//{
+//  numFails = 0; // 
+//  
+//  boolean     inSet;
+//  JTheDataSetObject tob = null;
+//
+//  switch (myBenchSet)
+//  {
+//    case LBloomGARSLP2:
+//    {
+//      long numSkipFails = 0;
+//      long numBloomFails = 0;
+//      ListIterator<JTheDataSetObject> iT = TestSet.listIterator();
+//      while (iT.hasNext())
+//      {
+//        tob = null;
+//        tob = iT.next();
+//        ot.println(tob);
+//        if (lBF.contains(tob)) // If in Bloom Filter
+//        {
+//          // Then find it in the Skip List
+//          inSet = sL.contains(tob);
+//          if (!inSet)
+//          {
+//            //ot.println(inSet);
+//            numSkipFails++;
+//          }
+//        }
+//        else
+//        {
+//          numBloomFails++;
+//        }
+//      }
+//      ot.println("-------");
+//      sL.printList();
+//      ot.println("--------");
+//      ot.println();
+//      ot.println("Number of objects outside of (Lovasoa) The Data Set Skip List:    " + numSkipFails);
+//      ot.println("Number of objects outside of (Lovasoa) The Data Set Bloom Filter: " + numBloomFails);
+//      
+//      break;  
+//    }
+//    case LBloomMGRSLP2:
+//    {
+//      break;
+//    }
+//    case SBloomGARSLP2:
+//    {
+//      long numSkipFails = 0;
+//      long numBloomFails = 0;
+//      ListIterator<JTheDataSetObject> iT = TestSet.listIterator();
+//      while (iT.hasNext())
+//      {
+//        tob = null;
+//        tob = iT.next();
+//        ot.println(tob);
+//        if (sBF.contains(tob)) // If in Bloom Filter
+//        {
+//          // Then find it in the Skip List
+//          inSet = sL.contains(tob);
+//          if (!inSet)
+//          {
+//            //ot.println(inSet);
+//            numSkipFails++;
+//          }
+//        }
+//        else
+//        {
+//          numBloomFails++;
+//        }
+//      }
+//      ot.println("-------");
+//      sL.printList();
+//      ot.println("--------");
+//      ot.println();
+//      ot.println("Number of objects outside of (Sangupta) The Data Set Skip List:    " + numSkipFails);
+//      ot.println("Number of objects outside of (Sangupta) The Data Set Bloom Filter: " + numBloomFails);
+//      break;
+//    }
+//    case SBloomMGRSLP2:
+//    {
+//      break;
+//    }
+//  }
+//}
 
 /*
 --------------------------------------------------------------------------------
@@ -899,6 +915,18 @@ public class JTestBench
 ----  monitor.                                                              ----
 --------------------------------------------------------------------------------
 */
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
