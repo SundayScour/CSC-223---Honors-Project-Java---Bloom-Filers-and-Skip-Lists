@@ -1,14 +1,18 @@
 package mainPack.jCustomClasses;
 
+import java.util.Random;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 
 import mainPack.jCustomClasses.*;
 
+/**
+ * 
+ */
 public class JTestBench
 {
-  /*
-   * Limits
+  /**
+   * Limit constants
    */
   public static final byte MIN_POWER = 2;
   public static final byte MAX_POWER = 8;
@@ -19,7 +23,7 @@ public class JTestBench
   // The bean for counting
   private ThreadMXBean myBenchBean = null;
   
-  /*
+  /**
    * Timers for each phase of testing
    */
   private long timeCreateStart  = 0;
@@ -34,7 +38,7 @@ public class JTestBench
   private long timeModifyEnd    = 0;
   private long timeModifyTotal  = 0;
   
-  /*
+  /**
    * Configuration options for each created instance of JTestBench
    */
   
@@ -47,6 +51,9 @@ public class JTestBench
   private byte powersOf10Start  = 0;
   private byte powersOf10End    = 0;
   private byte powersOf10Range  = 0;
+  
+  // Curated Random class object for repeatability
+  private Random myTestBenchRnd = null;
   
   private byte rectifyPowers(byte startP, byte endP)
   {
@@ -86,8 +93,10 @@ public class JTestBench
 
   }
   
-  /**
-   * Default constructor. DO NOT USE. Makes an invalid instance.
+  /*******
+   * Default constructor for a JTestBench object instantiation. 
+   * Makes an invalid instance. 
+   * @note DO. NOT. USE. EVER.
    */
   public JTestBench()
   {
@@ -95,14 +104,26 @@ public class JTestBench
     this.myBenchBean = null;
   }
   
-  public JTestBench (JBloomType bT, JGridSysType gS, JSkipListType sL, byte startP, byte endP)
+  /*******
+   * A proper constructor for a JTestBench object instantiation.
+   * 
+   * @param inSeed (long) Seed for the Random
+   * @param inBloomType (JBloomType) Which Bloom Filter implementation to use
+   * @param inGridSysType (JGridSysType) Which Coordinate System to use: GARS or MGRS
+   * @param inSkipListType (JSkipListType) Which Skip List implementation to use
+   * @param inStartPowerOf10 (byte) Starting (i.e. smallest) size, in power of 10, of The Data Set and Test Set during the Test Bench run
+   * @param inEndPowerOf10 (byte) Ending (i.e. the largest) size, in power of 10, of The Data Set and Test Set during the Test Bench run
+   */
+  public JTestBench (long inSeed, JBloomType inBloomType, JGridSysType inGridSysType, JSkipListType inSkipListType, 
+      byte inStartPower, byte inEndPower)
   {
+    this.myTestBenchRnd   = new Random(inSeed);
     this.myBenchBean      = ManagementFactory.getThreadMXBean();
-    this.myBloom          = bT;
-    this.myGrid           = gS;
-    this.mySkip           = sL;
-    this.powersOf10Start  = startP;
-    this.powersOf10End    = endP;
+    this.myBloom          = inBloomType;
+    this.myGrid           = inGridSysType;
+    this.mySkip           = inSkipListType;
+    this.powersOf10Start  = inStartPower;
+    this.powersOf10End    = inEndPower;
     this.powersOf10Range  = rectifyPowers(powersOf10End, powersOf10Start);
     
     this.isValid          = true;
@@ -145,8 +166,7 @@ public class JTestBench
   
   private void doCreate()
   {
-    // TODO Auto-generated method stub
-    
+        
   }
 
   private void doVerify()

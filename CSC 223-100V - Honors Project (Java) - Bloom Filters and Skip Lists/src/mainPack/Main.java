@@ -2,6 +2,7 @@ package mainPack;
 
 import java.util.Scanner;
 import java.io.PrintStream;
+import java.util.InputMismatchException;
 import java.util.Random;
 
 import mainPack.jCustomClasses.*;
@@ -14,6 +15,8 @@ public class Main
   public static void main(String[] args)
   {
     PrintStream o = new PrintStream(System.out);
+    Scanner     i = new Scanner(System.in);
+    
     JTheDataSetObject t1;
     JTheDataSetObject t2;
     
@@ -21,6 +24,10 @@ public class Main
     
     t1 = new JTheDataSetObject(43.21, -21.3, 0, JHashType.GARS);
     t2 = new JTheDataSetObject(-72.0, 64.479927, 100, JHashType.MGRS);
+    
+    long seed = 0;
+    String trash = "";
+    boolean goodSeed = false;
     
     o.println("t1 GARS Hash String: " + t1.toHashString());
     t1.setHashType(JHashType.MGRS);
@@ -38,7 +45,34 @@ public class Main
     o.println(t1.toString());
     o.println(t2.toString());
     
+    while (!goodSeed)
+    {
+      try
+      {
+        o.println();
+        o.println("**********");
+        o.println();
+        o.println("Type in the seed to initialize Random(): ");
+        o.println();
+        o.print("Seed = ");
+
+        seed = i.nextLong();
+        goodSeed = true;
+      }
+      catch (InputMismatchException iME)
+      {
+        o.println();
+        o.println("Incorrect input. Please, try again.");
+        trash = i.next(); // Get rid of bad input
+        
+        goodSeed = false;
+        continue;
+      }
+    }
     
+    b1 = new JTestBench(seed);
+    
+    i.close();
     o.close();
   }
 }
