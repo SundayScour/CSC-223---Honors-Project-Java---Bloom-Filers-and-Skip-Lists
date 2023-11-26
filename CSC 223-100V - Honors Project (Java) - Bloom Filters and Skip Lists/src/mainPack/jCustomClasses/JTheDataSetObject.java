@@ -87,6 +87,11 @@ public class JTheDataSetObject implements Comparable<JTheDataSetObject>
   public boolean isValid;
   
   /**
+   * Whether to make a 
+   */
+  private boolean failMe;
+  
+  /**
    * Default constructor. Does NOT MAKE a valid JTheDataSetObject object.
    */
   public JTheDataSetObject()
@@ -102,8 +107,15 @@ public class JTheDataSetObject implements Comparable<JTheDataSetObject>
   
   public JTheDataSetObject(JHashType inType, Random rng)
   {
-    theRandomizer(inType, rng);
+    theRandomizer(inType, rng, false);
     isValid = true;
+  }
+  
+  public JTheDataSetObject(JHashType inType, Random rng, boolean failMe)
+  {
+    if (!failMe) {failMe=true;} // There's really only one way to fail... ;)
+    theRandomizer(inType, rng, failMe);
+    isValid = true;    
   }
   
   /**
@@ -130,7 +142,7 @@ public class JTheDataSetObject implements Comparable<JTheDataSetObject>
     
     this.myMGRS = tmpGARS.toString();
     
-    this.myPay  = makeRandomName(rng) + makeRandomName(rng);// + " " + makeRandomName(rng);
+    this.myPay  = makeRandomName(rng, false) + makeRandomName(rng, false);
     this.myHashType = inType;
     this.isValid = true;
   }
@@ -306,7 +318,14 @@ public class JTheDataSetObject implements Comparable<JTheDataSetObject>
     return isValid;
   }
   
-  public void theRandomizer(JHashType inType, Random rng)
+  /**
+   * Make a random JTheDataSetObject, based on a calibrated Random object parameter: rng 
+   * 
+   * @param inType -  What the hash code should be generated from: GARS, MGRS, Lat/Lon
+   * @param rng  - The calibrated Random object from which to generate random values
+   * @param failMe  - Whether this is an object for tmpObjFail or just plain tmpObj
+   */
+  public void theRandomizer(JHashType inType, Random rng, boolean failMe)
   {
     this.myLat  = MIN_LAT + RNG_LAT * rng.nextDouble();
     this.myLon  = MIN_LON + RNG_LON * rng.nextDouble();
@@ -321,18 +340,11 @@ public class JTheDataSetObject implements Comparable<JTheDataSetObject>
     
     this.myMGRS = tmpGARS.toString();
     
-    this.myPay  = "" + makeRandomName(rng) + " " + makeRandomName(rng) + " " + makeRandomName(rng);
+    this.myPay  = "" + makeRandomName(rng, failMe) + " " + makeRandomName(rng, failMe);
     this.myHashType = inType;
-    this.isValid = true;
+    this.isValid = failMe;
   }
   
-  public static JTheDataSetObject makeBad(Random rng)
-  {
-    JTheDataSetObject BadOne = new JTheDataSetObject();
-    BadOne.theRandomizer(JHashType.GARS, rng);
-    BadOne.isValid = false;
-    return BadOne;
-  }
   
   @Override
   public String toString()
@@ -357,63 +369,76 @@ public class JTheDataSetObject implements Comparable<JTheDataSetObject>
    * @return String
    *         One random name from the hardcoded set of 52 possible names: 26 female, 26 male, both A to Z. 
    */
-  private String makeRandomName(Random rng)
+  private String makeRandomName(Random rng, boolean failMe)
   {
-    //Random rnd = new Random();
-    int x = -1;
-    String[] names = {"Alice    ", "Amanda  ",
-                      "Andrew   ", "Adaman  ",
-                      "Barbara  ", "Beatris ",
-                      "Bob      ", "Brandon ",
-                      "Clara    ", "Connie  ",
-                      "Cody     ", "Charles ",
-                      "Denise   ", "Dana    ",
-                      "Daniel   ", "Douglas ",
-                      "Erica    ", "Evelyn  ",
-                      "Eren     ", "Edward  ",
-                      "Frauline ", "Feorie  ",
-                      "Franklin ", "Fred    ",
-                      "Gwen     ", "Ginny   ",
-                      "Gaige    ", "Graber  ",
-                      "Hazel    ", "Hanna   ",
-                      "Henry    ", "Hank    ",
-                      "Ingrid   ", "Ia      ",
-                      "Ichiro   ", "Ian     ",
-                      "Jasmine  ", "Jody    ",
-                      "Jon      ", "Jeremy  ",
-                      "Karen    ", "Kat     ",
-                      "Keith    ", "Kenny   ",
-                      "Lauren   ", "Lisa    ",
-                      "Langston ", "Larold  ",
-                      "Melody   ", "MeiMei  ",
-                      "Maximan  ", "Mathew  ",
-                      "Nadia    ", "Naani   ",
-                      "Nathan   ", "Nerd    ",
-                      "Ophalia  ", "Oppai   ",
-                      "Oberon   ", "Othello ",
-                      "Pixie    ", "Posh    ",
-                      "Paul     ", "Potter  ",
-                      "Quinn    ", "Quiana  ",
-                      "Quill    ", "Quang   ",
-                      "Robin    ", "Rachael ",
-                      "Roger    ", "Richard ",
-                      "Svetlana ", "Sally   ",
-                      "Slade    ", "Samwise ",
-                      "Toya     ", "Theresa ",
-                      "Tim      ", "Tony    ",
-                      "Usha     ", "Uma     ",
-                      "Uriel    ", "Ulrich  ",
-                      "Veronica ", "Valerie ",
-                      "Viggo    ", "Victor  ",
-                      "Winona   ", "Wanda   ",
-                      "Wies     ", "Westley ",
-                      "Xochitl  ", "Xi      ",
-                      "Xander   ", "Xriss   ",
-                      "Ylva     ", "Yaaya   ",
-                      "Yoshiro  ", "Yyuman  ",
-                      "Zelda    ", "Zeyphr  ",
-                      "Zenon    ", "Zeus    "}; 
-    x = rng.nextInt(102);
-    return names[x];    
+    String outStr = "";
+    if (failMe)
+    {
+      int x = -1;
+      String[] names = {"FAilice  ", "FAilmanda",
+                        "ZenoFail ", "Jupiter  "}; 
+      x = rng.nextInt(4);
+      outStr = names[x];      
+    }
+    else
+    {
+      int x = -1;
+      String[] names = {"Alice    ", "Amanda  ",
+                        "Andrew   ", "Adaman  ",
+                        "Barbara  ", "Beatris ",
+                        "Bob      ", "Brandon ",
+                        "Clara    ", "Connie  ",
+                        "Cody     ", "Charles ",
+                        "Denise   ", "Dana    ",
+                        "Daniel   ", "Douglas ",
+                        "Erica    ", "Evelyn  ",
+                        "Eren     ", "Edward  ",
+                        "Frauline ", "Feorie  ",
+                        "Franklin ", "Fred    ",
+                        "Gwen     ", "Ginny   ",
+                        "Gaige    ", "Graber  ",
+                        "Hazel    ", "Hanna   ",
+                        "Henry    ", "Hank    ",
+                        "Ingrid   ", "Ia      ",
+                        "Ichiro   ", "Ian     ",
+                        "Jasmine  ", "Jody    ",
+                        "Jon      ", "Jeremy  ",
+                        "Karen    ", "Kat     ",
+                        "Keith    ", "Kenny   ",
+                        "Lauren   ", "Lisa    ",
+                        "Langston ", "Larold  ",
+                        "Melody   ", "MeiMei  ",
+                        "Maximan  ", "Mathew  ",
+                        "Nadia    ", "Naani   ",
+                        "Nathan   ", "Nerd    ",
+                        "Ophalia  ", "Oppai   ",
+                        "Oberon   ", "Othello ",
+                        "Pixie    ", "Posh    ",
+                        "Paul     ", "Potter  ",
+                        "Quinn    ", "Quiana  ",
+                        "Quill    ", "Quang   ",
+                        "Robin    ", "Rachael ",
+                        "Roger    ", "Richard ",
+                        "Svetlana ", "Sally   ",
+                        "Slade    ", "Samwise ",
+                        "Toya     ", "Theresa ",
+                        "Tim      ", "Tony    ",
+                        "Usha     ", "Uma     ",
+                        "Uriel    ", "Ulrich  ",
+                        "Veronica ", "Valerie ",
+                        "Viggo    ", "Victor  ",
+                        "Winona   ", "Wanda   ",
+                        "Wies     ", "Westley ",
+                        "Xochitl  ", "Xi      ",
+                        "Xander   ", "Xriss   ",
+                        "Ylva     ", "Yaaya   ",
+                        "Yoshiro  ", "Yyuman  ",
+                        "Zelda    ", "Zeyphr  ",
+                        "Zenon    ", "Zeus    "}; 
+      x = rng.nextInt(102);
+      outStr = names[x];
+    }
+    return outStr;
   }
+    
 }

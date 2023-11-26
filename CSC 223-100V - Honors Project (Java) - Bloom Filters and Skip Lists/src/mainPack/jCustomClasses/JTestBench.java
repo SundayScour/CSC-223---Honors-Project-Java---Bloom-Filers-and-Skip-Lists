@@ -367,6 +367,9 @@ public class JTestBench
     }
   }
   
+  /**
+   * Create this JTestBench run's data sets.
+   */
   private void doCreate()
   {
     Random  rng         = new Random(this.mySeed); // Initialize Random from the seed, for same data in ALL sets of a JTechBench object
@@ -379,8 +382,10 @@ public class JTestBench
     
     boolean doesItFail; // To determine whether a given object in The Data Set goes into Test Set, based on myFailRate 
     
-    long numBads  = 0; // Keep count of number of Bad entries, i.e. number of objects in Test Set NOT IN The Data Set  
-    long numFails = 0; // Keep count of number of misses in the Skip List for objects not found
+    /**
+     * Keep count of number of Bad entries, i.e. number of objects in Test Set NOT IN The Data Set
+     */
+    long numBads  = 0;
         
     JTheDataSetObject tmpObj      = null; // Temporary data set object for creating all the various sets
     JTheDataSetObject tmpObjFail  = null; // Temporary data set object that is outide of The Data Set, 
@@ -420,98 +425,43 @@ public class JTestBench
     {
       /* Make an object for the sets */
       tmpObj      = new JTheDataSetObject(gridToHashType(), rng);
-      tmpObjFail  = new JTheDataSetObject(gridToHashType(), rng); //, boolean failMe);
+      tmpObjFail  = new JTheDataSetObject(gridToHashType(), rng, true);
       doesItFail  = randFail(rng, myFailRate);
+      
+      /* Stick 'em where they belong */
+      TheDataSet.push(tmpObj);
+      addToBloom(tmpObj);
+      LP2Skip.add(tmpObj);
+      if (doesItFail)
+      {
+        TestSet.push(tmpObjFail);
+        numBads++;
+      }
+      else
+      {
+        TestSet.push(tmpObj);
+      }
+      
+      /* Clear out the temporaries */
+      tmpObj      = null;
+      tmpObjFail  = null;
+      
+      /* Diagnostic: Output the number of "Bad" objects */
+      ot.println("Number of \"Bad\" entries in Test Set: " + numBads);
     }
-//    switch (myBenchSet)
-//    {
-//      case LBloomGARSLP2:
-//      {
-//        for (int i = 0; i < powersOf10Start; i++)
-//        {
-//          sizeSet *= 10;
-//        }
-//        sizeBloom *= sizeSet;
-//        
-//        lBF = new LovaBloomFilter(sizeSet, sizeBloom);
-//        sL = new SkipList<JTheDataSetObject>();
-//        
-//        for (int i = 0; i < sizeSet; i++)
-//        {
-//          tmpP = new JTheDataSetObject(JHashType.GARS, rng);  // Make new point object
-//          lBF.add(tmpP);                                      // Add it to the Bloom Filter
-//          sangBloom.add(tmpObj);                                       // Add it to the Skip List
-//          if (randFail(rng, myFRate)) // Add it to Test Set (unless randomly fails)
-//          {
-//            TestSet.add(JTheDataSetObject.makeBad(rng));
-//            //ot.println("Random");
-//            numRands++;
-//          }
-//          else
-//          {
-//            TestSet.add(tmpP);
-//          }
-//        }
-//        for (int x = 0; x < TestSet.size(); x++)
-//        {
-//          ot.println(TestSet.at(x).toString());
-//        }
-//        ot.println("Number of Randoms in (Lovasoa) Test Set:             " + numRands);
-//
-//        
-//        break;  
-//      }
-//      case LBloomMGRSLP2:
-//      {
-//        break;
-//      }
-//      case SBloomGARSLP2:
-//      {
-//        int sizeSet = 1;
-//        int sizeBloom = 16;
-//        long numRands = 0;
-//        Random rng = new Random (this.mySeed);
-//        JTheDataSetObject tmpP = null;
-//        for (int i = 0; i < powersOf10Start; i++)
-//        {
-//          sizeSet *= 10;
-//        }
-//        sizeBloom *= sizeSet;
-//        
-//        sBF = new InMemoryBloomFilter<JTheDataSetObject>(sizeSet, 0.0005);
-//        sL = new SkipList<JTheDataSetObject>();
-//        
-//        for (int i = 0; i < sizeSet; i++)
-//        {
-//          tmpP = new JTheDataSetObject(JHashType.GARS, rng);  // Make new point object
-//          sBF.add(tmpP);                                      // Add it to the Bloom Filter
-//          sL.add(tmpP);                                       // Add it to the Skip List
-//          if (randFail(rng, myFRate)) // Add it to Test Set (unless randomly fails)
-//          {
-//            TestSet.add(JTheDataSetObject.makeBad());
-//            //ot.println("Random");
-//            numRands++;
-//          }
-//          else
-//          {
-//            TestSet.add(tmpP);
-//          }
-//          tmpP = null;
-//        }
-//        ot.println("Number of Randoms in (Sangupta) Test Set:             " + numRands);
-//
-//        
-//        break;
-//      }
-//      case SBloomMGRSLP2:
-//      {
-//        break;
-//      }
-//    }
   }
 
+  /**
+   * Verify which objects in Test Set are also in The Data Set
+   * 
+   * @note The Data Set has two copies:
+   *       The Bloom Filters and Skip List I am testing, and the
+   *       Stack TheDataSet as a fool-proof backup for what 
+   *       SHOULD be in the Skip List (and Bloom Filter).
+   */
   private void doVerify()
   {
+    long numFails = 0; // Keep count of number of misses in the Skip List for objects not found
     
 //    boolean     inSet;
 //    JTheDataSetObject tob = null;
@@ -657,6 +607,93 @@ public class JTestBench
   }
   
 }
+
+/* Archived code, for future reference: */
+//switch (myBenchSet)
+//{
+//case LBloomGARSLP2:
+//{
+//  for (int i = 0; i < powersOf10Start; i++)
+//  {
+//    sizeSet *= 10;
+//  }
+//  sizeBloom *= sizeSet;
+//  
+//  lBF = new LovaBloomFilter(sizeSet, sizeBloom);
+//  sL = new SkipList<JTheDataSetObject>();
+//  
+//  for (int i = 0; i < sizeSet; i++)
+//  {
+//    tmpP = new JTheDataSetObject(JHashType.GARS, rng);  // Make new point object
+//    lBF.add(tmpP);                                      // Add it to the Bloom Filter
+//    sangBloom.add(tmpObj);                                       // Add it to the Skip List
+//    if (randFail(rng, myFRate)) // Add it to Test Set (unless randomly fails)
+//    {
+//      TestSet.add(JTheDataSetObject.makeBad(rng));
+//      //ot.println("Random");
+//      numRands++;
+//    }
+//    else
+//    {
+//      TestSet.add(tmpP);
+//    }
+//  }
+//  for (int x = 0; x < TestSet.size(); x++)
+//  {
+//    ot.println(TestSet.at(x).toString());
+//  }
+//  ot.println("Number of Randoms in (Lovasoa) Test Set:             " + numRands);
+//
+//  
+//  break;  
+//}
+//case LBloomMGRSLP2:
+//{
+//  break;
+//}
+//case SBloomGARSLP2:
+//{
+//  int sizeSet = 1;
+//  int sizeBloom = 16;
+//  long numRands = 0;
+//  Random rng = new Random (this.mySeed);
+//  JTheDataSetObject tmpP = null;
+//  for (int i = 0; i < powersOf10Start; i++)
+//  {
+//    sizeSet *= 10;
+//  }
+//  sizeBloom *= sizeSet;
+//  
+//  sBF = new InMemoryBloomFilter<JTheDataSetObject>(sizeSet, 0.0005);
+//  sL = new SkipList<JTheDataSetObject>();
+//  
+//  for (int i = 0; i < sizeSet; i++)
+//  {
+//    tmpP = new JTheDataSetObject(JHashType.GARS, rng);  // Make new point object
+//    sBF.add(tmpP);                                      // Add it to the Bloom Filter
+//    sL.add(tmpP);                                       // Add it to the Skip List
+//    if (randFail(rng, myFRate)) // Add it to Test Set (unless randomly fails)
+//    {
+//      TestSet.add(JTheDataSetObject.makeBad());
+//      //ot.println("Random");
+//      numRands++;
+//    }
+//    else
+//    {
+//      TestSet.add(tmpP);
+//    }
+//    tmpP = null;
+//  }
+//  ot.println("Number of Randoms in (Sangupta) Test Set:             " + numRands);
+//
+//  
+//  break;
+//}
+//case SBloomMGRSLP2:
+//{
+//  break;
+//}
+//}
 
 /*
 --------------------------------------------------------------------------------
