@@ -140,7 +140,6 @@ public class JTestBench
   public static final int     MAX_POWER = 8;  // No more than 10**8 = 100_000_000 Objects in a set
   public static final double  SANGUPTA_BLOOM_FALSE_POSITIVE_RATE = 0.01; // Rate of false positives in Sangupta Bloom Filter
   public static final int     LOVASOA_BLOOM_BITS_PER_OBJECT = 8;    // Number of bits per object to allocate for the Lovasoa Bloom Filter
-  
   /**
    * This is the conversion factor to make it easier to read
    * 
@@ -153,79 +152,103 @@ public class JTestBench
   public static final int     DURATION_TIMESCALE_QUOTIENT =         1_000;
 //  public static final int     DURATION_TIMESCALE_QUOTIENT =     1_000_000;
 //  public static final int     DURATION_TIMESCALE_QUOTIENT = 1_000_000_000;
- 
-  // Is this a valid instatnce of JTestBench?
+  /**
+   * Is this a valid instance of JTestBench?
+   * 
+   * @Note Yes, probably.
+   */
   private boolean isValid = false;  
-  
-  // The bean for counting...
-  private ThreadMXBean myBenchBean = null; // ...but it's not ready for counting yet.
-  
+  /**
+   * The bean for counting...
+   * 
+   * @Note Instantiated within JTestBench constructors
+   */
+  private ThreadMXBean myBenchBean; 
   /* Timers for each phase of testing */
   /**
-   * Timers for each phase of testing
+   * CPU Timestamp for start of Creation phase. 
    * 
-   * A Creation timestamp.
+   * @Note A Creation timestamp.
    */
   private long timeCreateStart  = 0;
   /**
-   * Timers for each phase of testing
+   * CPU Timestamp for end of Creation phase.
    * 
-   * A Creation timestamp.
+   * @Note A Creation timestamp.
    */
   private long timeCreateEnd    = 0;
   /**
-   * Timers for each phase of testing
+   * Total CPU time for Creation phase
    * 
-   * A Creation timestamp.
+   * @Note A Creation timestamp.
    */
   private long timeCreateTotal  = 0;
   /**
-   * Timers for each phase of testing
+   * CPU Timestamp for start of Verification phase.
    * 
-   * A Verification timestamp.
+   * @Note A Verification timestamp.
    */
   private long timeVerifyStart  = 0;
   /**
-   * Timers for each phase of testing
+   * CPU Timestamp for end of Verification phase.
    * 
-   * A Verification timestamp.
+   * @Note A Verification timestamp.
    */
   private long timeVerifyEnd    = 0;
   /**
-   * Timers for each phase of testing
+   * Total CPU time for Verification phase
    * 
-   * A Verification timestamp.
+   * @Note A Verification timestamp.
    */
   private long timeVerifyTotal  = 0;
   /**
-   * Timers for each phase of testing
+   * CPU Timestamp for start of Modification phase.
    * 
-   * A Modification timestamp.
+   * @Note A Modification timestamp.
    */
   private long timeModifyStart  = 0;
   /**
-   * Timers for each phase of testing
+   * CPU Timestamp for end of Modification phase.
    * 
-   * A Modification timestamp.
+   * @Note A Modification timestamp.
    */
   private long timeModifyEnd    = 0;
   /**
-   * Timers for each phase of testing
+   * Total CPU time for Modification phase.
    * 
-   * A Modification timestamp.
+   * @Note A Modification timestamp.
    */
-  private long timeModifyTotal  = 0;
-  
-  /*
-   * Configuration options for each created instance of JTestBench
+  private long timeModifyTotal  = 0;  
+  /**
+   * Which type (i.e. which imported implementation) of
+   * Bloom Filter to use
+   * 
+   * @Note JBloomTypes are:
+   *       .Lovasoa
+   *       and
+   *       .Sangupta
    */
-  
-  // The data structure implementations to use, and their default values
   private JBloomType    myBloom     = JBloomType.Lovasoa;
+  /**
+   * Which type (i.e. which imported implementation) of
+   * Bloom Filter to use
+   * 
+   * @Note JBloomTypes are:
+   *       .Lovasoa
+   *       and
+   *       .Sangupta
+   */  
   private JGridSysType  myGrid      = JGridSysType.GARS;
+  /**
+   * Which type (i.e. which imported implementation) of
+   * Bloom Filter to use
+   * 
+   * @Note JBloomTypes are:
+   *       .Lovasoa
+   *       and
+   *       .Sangupta
+   */
   private JSkipListType mySkip      = JSkipListType.LP2;
-  private JBenchSetType myBenchSet  = JBenchSetType.LBloomGARSLP2;
-  
   /**
    * THE FULL SET: The Data Set™
    * 
@@ -264,23 +287,23 @@ public class JTestBench
    */
   private double        myFRate;    // ...as a double.
   /**
-   * Lovasoa Bloom Filter for this Bench
+   * Lovasoa Bloom Filter for this Bench.
    */
   LovaBloomFilter                         lovaBloom;
   /**
-   * Sangupta Bloom Filter for this Bench
+   * Sangupta Bloom Filter for this Bench.
    */
   InMemoryBloomFilter<JTheDataSetObject>  sangBloom;
   /**
-   * Skip List for this Bench
+   * Skip List for this Bench.
    */
   SkipList<JTheDataSetObject>             LP2Skip;
   /**
-   * A short alias for console output
+   * A short alias for console output.
    */
   PrintStream ot;
   /**
-   * A short alias for console input
+   * A short alias for console input.
    */
   Scanner     n;
   /**
@@ -289,26 +312,49 @@ public class JTestBench
    * @Note Used only by (PrintStream) n to discard bad input
    */
   String      trash;
-  
-  /*
-   *  The orders of magnitude of the size of The Data Set and Test Set. They will all be tried and times recorded.
+  /**
+   * Lower end of sizeTest for this series of runs.
+   * @Note A power of 10 order of magnitude
+   * @Note Expanded by expandPot() and stored in potStart
    */
-  private int powersOf10Start = 0;  // Where to start the series of runs for a given Bench
-  private int powersOf10End   = 0;  // Where to   end the series of runs for a given Bench
-  private int powersOf10Range = 0;  // The total number of runs in each series of runs for a given bench
-                                    // so as to cover the entire set of Orders of Magnitude for the sizes of the sets on the Bench
-  
-  private int potStart        = 0;  // Expanded form of powersOf10Start, i.e. 10 ** powersOf10Start
-  private int potEnd          = 0;  // Expanded form of powersOf10End  , i.e. 10 ** powersOf10End
-  
-  private int potCurr         = 0;  // Expanded form of current size of the sets. TODO: iterate this variable over powersOf10Range
+  private int powersOf10Start = 0;
+  /**
+   * Upper end of sizeTest for this series of runs.
+   * @Note A power of 10 order of magnitude
+   * @Note Expanded by expandPot() and stored in potEnd
+   */
+  private int powersOf10End   = 0;
+  /**
+   * Total range over which sizeTest varies for this Bench's series of runs.
+   * 
+   * @Note The total number of runs in each series of runs for a given bench
+   *        so as to cover the entire set of Orders of Magnitude for the sizes of the sets on the Bench
+   */
+  private int powersOf10Range = 0;
+  /**
+   * Lower end of sizeTest for this series of runs.
+   * @Note This is the expanded form of powersOf10Start
+   */
+  private int potStart        = 0;
+  /**
+   * Upper end of sizeTest for this series of runs.
+   * @Note This is the expanded form of powersOf10End
+   */
+  private int potEnd          = 0;
+  /**
+   * Expanded form of current size of the sets.
+   * 
+   * @Note TODO: iterate this variable over powersOf10Range
+   */
+  private int potCurr         = 0;
     
 /* ****************************************************************************************************************************************/
 /* **** Methods ***************************************************************************************************************************/
 /* ****************************************************************************************************************************************/
   
   /**
-   * 
+   * Get the range over which to iterate to empirically
+   * determine time comlexities
    * 
    * @param powersOf10End
    * @param powersOf10Start
@@ -318,16 +364,14 @@ public class JTestBench
   private int powersRange(int powersOf10End, int powersOf10Start)
   {
     int rangeOfPowers = 0;
-    
-    enforcePowerLimits();
     rangeOfPowers = powersOf10Start - powersOf10End;
     if (rangeOfPowers < 0) {rangeOfPowers = 0;}
-    
     return rangeOfPowers;
   }
-  
   /**
    * Keep powers within the declared limits
+   * 
+   * @Note Called in constructor
    */
   private void enforcePowerLimits()
   {
@@ -337,20 +381,18 @@ public class JTestBench
     if (this.powersOf10End < MIN_POWER) {this.powersOf10End = MIN_POWER;}
     else if (this.powersOf10End > MAX_POWER) {this.powersOf10End = MAX_POWER;}
   }
-  
   /*******
    * Default constructor for a JTestBench object instantiation. 
    * Makes an invalid instance. 
    * @Note DO. NOT. USE. EVER.
-   * _..._
-   * (I used it any way.)
+   * 
+   * (...I used it any way.)
    */
   public JTestBench()
   {
     this.isValid = false;
     this.myBenchBean = null;
   }
-  
   /*******
    * A proper constructor for a JTestBench object instantiation.
    * 
@@ -358,8 +400,8 @@ public class JTestBench
    * @param inBloomType (JBloomType) Which Bloom Filter implementation to use
    * @param inGridSysType (JGridSysType) Which Coordinate System to use: GARS or MGRS
    * @param inSkipListType (JSkipListType) Which Skip List implementation to use
-   * @param inStartPowerOf10 (byte) Starting (i.e. smallest) size, in power of 10, of The Data Set and Test Set during the Test Bench run
-   * @param inEndPowerOf10 (byte) Ending (i.e. the largest) size, in power of 10, of The Data Set and Test Set during the Test Bench run
+   * @param inStartPowerOf10 (int) Starting (i.e. smallest) size, in power of 10, of The Data Set and Test Set during the Test Bench run
+   * @param inEndPowerOf10 (int) Ending (i.e. the largest) size, in power of 10, of The Data Set and Test Set during the Test Bench run
    */
   public JTestBench (long inSeed, JBloomType inBloomType, JGridSysType inGridSysType, JSkipListType inSkipListType, 
       int inStartPower, int inEndPower, int inFailRate)
@@ -371,7 +413,6 @@ public class JTestBench
     this.myBloom          = inBloomType;
     this.myGrid           = inGridSysType;
     this.mySkip           = inSkipListType;
-    this.myBenchSet       = makeOptionsSet();
     
     // Powers of 10 for the sizes of the sets
     this.powersOf10Start  = inStartPower;
@@ -404,10 +445,12 @@ public class JTestBench
      */
     this.isValid          = true;
   }
-  
   /**
-   * @param inPot: A Power of 10 to expand
+   * Expands fields given as powers of 10
+   * 
+   * @param inPot The Power of 10 to expand
    * @return (int) The numer 10 raised to inPot
+   * @Note Called by JTestBench constructor
    */
   private int expandPot(int inPot)
   {
@@ -418,29 +461,6 @@ public class JTestBench
     }
     return outPot;
   }
-
-  /**
-   * Compile the given options into an enum constant
-   * @return (JBenchSetType) The exact configuration of this JTestBench instance.
-   */
-  private JBenchSetType makeOptionsSet()
-  {
-    JBenchSetType outType = null;
-    
-    if (myBloom == JBloomType.Lovasoa)
-    {
-      if (myGrid == JGridSysType.GARS) {outType = JBenchSetType.LBloomGARSLP2;}
-      else {outType = JBenchSetType.LBloomMGRSLP2;}
-    }
-    else if (myBloom == JBloomType.Sangupta)
-    {
-      if (myGrid == JGridSysType.GARS) {outType = JBenchSetType.SBloomGARSLP2;}
-      else {outType = JBenchSetType.SBloomMGRSLP2;}
-    }
-    
-    return outType;
-  }
-  
   /**
    * Is this a valid construction of a JTestBench?
    * @return (boolean) Whether the construction is valid or not.
@@ -449,22 +469,45 @@ public class JTestBench
   {
     return this.isValid;
   }
-  
+  /**
+   * Calculates total CPU time of Creation phase.
+   * 
+   * @return This Java program thread's CPU time spent on Creation phase
+   * 
+   * @Note Timescale varies by using (staic final) DURATION_TIMESCALE_QUOTIENT factor
+   */
   private long calcCreateTime()
   {
-    return ((this.timeCreateEnd - this.timeCreateStart) / 1_000);
+    return ((this.timeCreateEnd - this.timeCreateStart) / DURATION_TIMESCALE_QUOTIENT);
   }
-  
+  /**
+   * Calculates total CPU time of Verification phase.
+   * 
+   * @return This Java program thread's CPU time spent on Verification phase
+   * 
+   * @Note Timescale varies by using (staic final) DURATION_TIMESCALE_QUOTIENT factor
+   */
   private long calcVerifyTime()
   {
-    return ((this.timeVerifyEnd - this.timeVerifyStart) / 1_000);
+    return ((this.timeVerifyEnd - this.timeVerifyStart) / DURATION_TIMESCALE_QUOTIENT);
   }
-  
+  /**
+   * Calculates total CPU time of Modification phase.
+   * 
+   * @return This Java program thread's CPU time spent on Modification phase
+   * 
+   * @Note Timescale varies by using (staic final) DURATION_TIMESCALE_QUOTIENT factor
+   */
   private long calcModifyTime()
   {
-    return ((this.timeModifyEnd - this.timeModifyStart) / 1_000);
+    return ((this.timeModifyEnd - this.timeModifyStart) / DURATION_TIMESCALE_QUOTIENT);
   }
   
+  /**
+   * The main logic control structure of the JTestBench class.
+   * 
+   * @Note Let's get this (Bench)party started! Wooo!
+   */
   public void startup()
   {
     /**
