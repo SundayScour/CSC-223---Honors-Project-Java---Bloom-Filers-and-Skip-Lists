@@ -382,7 +382,9 @@ public class JTestBench
     long numBads  = 0; // Keep count of number of Bad entries, i.e. number of objects in Test Set NOT IN The Data Set  
     long numFails = 0; // Keep count of number of misses in the Skip List for objects not found
         
-    JTheDataSetObject tmpObj = null; // Temporary data set object for creating all the various sets
+    JTheDataSetObject tmpObj      = null; // Temporary data set object for creating all the various sets
+    JTheDataSetObject tmpObjFail  = null; // Temporary data set object that is outide of The Data Set, 
+                                          // to be put into Test Set to fill the quota for a given myFailRate.
     
     /**
      * Create a Bloom Filter for this JTestBench object, to quickly eliminate objects NOT in The Data Set.
@@ -417,8 +419,9 @@ public class JTestBench
     for (int k = 0; k < sizeSet; k++)
     {
       /* Make an object for the sets */
-      tmpObj = new JTheDataSetObject(gridToHashType(), rng);
-      doesItFail = randFail(rng, myFailRate);
+      tmpObj      = new JTheDataSetObject(gridToHashType(), rng);
+      tmpObjFail  = new JTheDataSetObject(gridToHashType(), rng); //, boolean failMe);
+      doesItFail  = randFail(rng, myFailRate);
     }
 //    switch (myBenchSet)
 //    {
