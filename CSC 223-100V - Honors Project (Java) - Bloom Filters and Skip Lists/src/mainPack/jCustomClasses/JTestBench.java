@@ -337,6 +337,36 @@ public class JTestBench
     this.shutdown();
   }
   
+  /**
+   * Converts (JGridSysType) this.myGrid to a JHashType
+   * 
+   * @return (JHashType) outType
+   */
+  private JHashType gridToHashType()
+  {
+    JHashType outType = null;
+    switch (this.myGrid)
+    {
+      case GARS: {outType = JHashType.GARS; break;}
+      case MGRS: {outType = JHashType.MGRS; break;}
+    }
+    return outType;
+  }
+  
+  /**
+   * Abstracted way to add object o into the correct Bloom.
+   * 
+   * @param (JTheDataSetObject) o
+   */
+  private void addToBloom (JTheDataSetObject o)
+  {
+    switch (myBloom)
+    {
+      case Lovasoa:   {lovaBloom.add(o);}
+      case Sangupta:  {sangBloom.add(o);}
+    }
+  }
+  
   private void doCreate()
   {
     Random  rng         = new Random(this.mySeed); // Initialize Random from the seed, for same data in ALL sets of a JTechBench object
@@ -347,13 +377,49 @@ public class JTestBench
     int     bitsPerObj  = LOVASOA_BLOOM_BITS_PER_OBJECT; // Number of bits per object in a Lovasoa Bloom Filter
     int     sizeLBloom  = sizeSet * bitsPerObj;         // Size passed into Lovasoa Bloom Filters
     
+    boolean doesItFail; // To determine whether a given object in The Data Set goes into Test Set, based on myFailRate 
     
     long numBads  = 0; // Keep count of number of Bad entries, i.e. number of objects in Test Set NOT IN The Data Set  
     long numFails = 0; // Keep count of number of misses in the Skip List for objects not found
         
-    JTheDataSetObject tmpO = null; // Temporary data set object for creating all the various sets
-    lovaBloom = null;
+    JTheDataSetObject tmpObj = null; // Temporary data set object for creating all the various sets
     
+    /**
+     * Create a Bloom Filter for this JTestBench object, to quickly eliminate objects NOT in The Data Set.
+     * 
+     * @note Construct and initialize the correct Bloom Filter, based on (JBloomType) myBloom. 
+     */
+    if (this.myBloom == JBloomType.Sangupta)  {sangBloom = new InMemoryBloomFilter<JTheDataSetObject>(sizeSet, fPosRate);}
+    else                                      {lovaBloom = new LovaBloomFilter(sizeSet, sizeLBloom);}
+    
+    /**
+     * Create a Skip List to contain The Data Set
+     * 
+     * @note For verification purposes, objects put into the Skip List (and the Bloom Filter)
+     *       will ALSO BE PUT INTO a stack which I consider as the REAL The Data Set, of 
+     *       which, this Skip List is merely a COPY.
+     *
+     * @note Also, I have not made my OWN Skip List implementation, so Long-Project-2 Skip List will have to do...
+     * TODO: Make my own implementation.
+     */
+    if (this.mySkip == JSkipListType.LP2) {LP2Skip = new SkipList<JTheDataSetObject>();}
+    
+    /**
+     * Add the requisite number of objects into each data set.
+     * 
+     *  @note Some proper objects in The Data Set (both of them) will have
+     *        an invalid object complement in Test Set, based on stochastic
+     *        function that makes a certain percentage of objects in the 
+     *        Test Set outside of (not included in) The Data Set. This is
+     *        where Bloom Filters really shine, compared with R-Trees, in
+     *        theory anyway.
+     */
+    for (int k = 0; k < sizeSet; k++)
+    {
+      /* Make an object for the sets */
+      tmpObj = new JTheDataSetObject(gridToHashType(), rng);
+      doesItFail = randFail(rng, myFailRate);
+    }
 //    switch (myBenchSet)
 //    {
 //      case LBloomGARSLP2:
@@ -371,7 +437,7 @@ public class JTestBench
 //        {
 //          tmpP = new JTheDataSetObject(JHashType.GARS, rng);  // Make new point object
 //          lBF.add(tmpP);                                      // Add it to the Bloom Filter
-//          sL.add(tmpP);                                       // Add it to the Skip List
+//          sangBloom.add(tmpObj);                                       // Add it to the Skip List
 //          if (randFail(rng, myFRate)) // Add it to Test Set (unless randomly fails)
 //          {
 //            TestSet.add(JTheDataSetObject.makeBad(rng));
