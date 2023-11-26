@@ -1,3 +1,17 @@
+/**
+ * @Project: CSC 223-100V - Honors Project (Java) - Bloom Filters and Skip Lists
+ * 
+ * @FileName:                 JTestBench.java
+ * @OriginalFileCreationDate: Nov 25, 2023
+ * 
+ * @Author:           Jonathan Wayne Edwards
+ * @GitHubUserName:   SundayScour
+ * @GutHubUserEmail:  sunday_scour@aol.com
+ * 
+ * @EnclosingPackage: mainPack.jCustomClasses
+ * @ClassName:        JTestBench
+ */
+
 package mainPack.jCustomClasses;
 
 import java.util.Random;
@@ -171,13 +185,11 @@ public class JTestBench
 
   private void doVerify()
   {
-    // TODO Auto-generated method stub
     
   }
 
   private void doModify()
   {
-    // TODO Auto-generated method stub
     
   }
 
