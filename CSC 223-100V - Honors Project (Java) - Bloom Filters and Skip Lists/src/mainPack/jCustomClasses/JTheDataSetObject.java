@@ -248,13 +248,6 @@ public class JTheDataSetObject implements Comparable<JTheDataSetObject>
 //    return strOut;
 //  }
   
-  @Override
-  public String toString()
-  {
-    return "JTheDataSetObject [myLat=" + myLat + ", myLon=" + myLon + ", myAlt="
-        + myAlt + ", myGARS=" + myGARS + ", myMGRS=" + myMGRS + ", myPay="
-        + myPay + ", myHashType=" + myHashType + ", isValid=" + isValid + "]";
-  }
 
   // Eclipse generated getters and setters:
   /**
@@ -338,6 +331,20 @@ public class JTheDataSetObject implements Comparable<JTheDataSetObject>
     JTheDataSetObject BadOne = new JTheDataSetObject();
     return BadOne;
   }
+  
+  @Override
+  public String toString()
+  {
+    return ("" + "Pay: " + myPay + " --- " + "Valid: " + isValid);
+    /*
+
+    return "JTheDataSetObject [myLat=" + myLat + ", myLon=" + myLon + ", myAlt="
+        + myAlt + ", myGARS=" + myGARS + ", myMGRS=" + myMGRS + ", myPay="
+        + myPay + ", myHashType=" + myHashType + ", isValid=" + isValid + "]";
+        
+    */
+  }
+
 
   /**
    * Helper function copied from previous semester's Final Project:

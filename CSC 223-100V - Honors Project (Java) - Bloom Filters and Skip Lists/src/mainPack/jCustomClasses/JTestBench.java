@@ -98,7 +98,8 @@ public class JTestBench
   private JSkipListType mySkip  = JSkipListType.LP2;
   private JBenchSetType myBenchSet = JBenchSetType.LBloomGARSLP2;
   
-  private double        myFailRate; 
+  private int           myFailRate; // Percentage of Test Set objects that are NOT in The Data Set
+  private double        myFRate;
   
   LovaBloomFilter                         lBF;        // Lovasoa Bloom Filter for this Bench
   InMemoryBloomFilter<JTheDataSetObject>  sBF;        // Sangupta Bloom Filter for this Bench
@@ -178,7 +179,7 @@ public class JTestBench
    * @param inEndPowerOf10 (byte) Ending (i.e. the largest) size, in power of 10, of The Data Set and Test Set during the Test Bench run
    */
   public JTestBench (long inSeed, JBloomType inBloomType, JGridSysType inGridSysType, JSkipListType inSkipListType, 
-      byte inStartPower, byte inEndPower, double inFailRate)
+      byte inStartPower, byte inEndPower, int inFailRate)
   {
     this.mySeed           = inSeed;
     this.myBenchBean      = ManagementFactory.getThreadMXBean();
@@ -190,6 +191,7 @@ public class JTestBench
     this.powersOf10End    = inEndPower;
     this.powersOf10Range  = rectifyPowers(powersOf10End, powersOf10Start);
     this.myFailRate       = inFailRate;
+    this.myFRate          = inFailRate / (double)100;
     
     this.TestSet          = new Vector<JTheDataSetObject>();
     
@@ -294,7 +296,7 @@ public class JTestBench
           tmpP = new JTheDataSetObject(JHashType.GARS, rng);  // Make new point object
           lBF.add(tmpP);                                      // Add it to the Bloom Filter
           sL.add(tmpP);                                       // Add it to the Skip List
-          if (rng.nextDouble() > myFailRate) // Add it to Test Set (unless randomly fails)
+          if (randFail(rng, myFRate)) // Add it to Test Set (unless randomly fails)
           {
             TestSet.add(JTheDataSetObject.makeBad());
             //ot.println("Random");
@@ -335,7 +337,7 @@ public class JTestBench
           tmpP = new JTheDataSetObject(JHashType.GARS, rng);  // Make new point object
           sBF.add(tmpP);                                      // Add it to the Bloom Filter
           sL.add(tmpP);                                       // Add it to the Skip List
-          if (rng.nextDouble() > myFailRate) // Add it to Test Set (unless randomly fails)
+          if (randFail(rng, myFRate)) // Add it to Test Set (unless randomly fails)
           {
             TestSet.add(JTheDataSetObject.makeBad());
             //ot.println("Random");
@@ -390,7 +392,10 @@ public class JTestBench
             numBloomFails++;
           }
         }
-        //sL.printList();
+        ot.println("-------");
+        sL.printList();
+        ot.println("--------");
+        ot.println();
         ot.println("Number of objects outside of (Lovasoa) The Data Set Skip List:    " + numSkipFails);
         ot.println("Number of objects outside of (Lovasoa) The Data Set Bloom Filter: " + numBloomFails);
         
@@ -425,6 +430,10 @@ public class JTestBench
             numBloomFails++;
           }
         }
+        ot.println("-------");
+        sL.printList();
+        ot.println("--------");
+        ot.println();
         ot.println("Number of objects outside of (Sangupta) The Data Set Skip List:    " + numSkipFails);
         ot.println("Number of objects outside of (Sangupta) The Data Set Bloom Filter: " + numBloomFails);
         break;
@@ -484,6 +493,16 @@ public class JTestBench
   private long getBeanCount()
   {
     return myBenchBean.getCurrentThreadCpuTime();
+  }
+  
+  public static boolean randFail(Random rng, double myFailRate)
+  {
+    boolean itFailed;
+    double rate = myFailRate / 100.0;
+    
+    itFailed = rng.nextDouble() > rate;
+    
+    return itFailed;
   }
   
 }

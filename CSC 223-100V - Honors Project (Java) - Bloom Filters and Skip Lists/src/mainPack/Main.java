@@ -64,14 +64,16 @@ public class Main
       }
     }
     
+//    testRandFail(seed, o);
+    
     strt  = (byte)1;
     nd    = (byte)1;
-    b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 0.7);
+    b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 7);
     b1.startup();
     
     myPause();
     
-    b2 = new JTestBench(seed, JBloomType.Sangupta, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 0.7);
+    b2 = new JTestBench(seed, JBloomType.Sangupta, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 7);
     b2.startup();
     
     i.close();
@@ -86,6 +88,28 @@ public class Main
          }  
          catch(Exception e)
          {}  
+  }
+  
+  private static void testRandFail(long seed, PrintStream o)
+  {
+    Random rng = new Random(seed);
+    boolean tf;
+    int numRuns = 100000;
+    double trueFailRate = -0.0;
+    
+    int failCount = 0;
+    for (int k = 0; k < numRuns; k++)
+    {
+      tf = JTestBench.randFail(rng, 7.1);
+      if (!tf) {failCount++;}
+      //o.println(tf);
+    }
+    trueFailRate  = failCount / (double)numRuns;
+    trueFailRate *= 100; // Make a percentage
+    
+    o.println("Number of Fails:   " + failCount);
+    o.println("Number of runs:    " + numRuns);
+    o.println("True Failure Rate: " + String.format("%.2f", trueFailRate));
   }
 
 }

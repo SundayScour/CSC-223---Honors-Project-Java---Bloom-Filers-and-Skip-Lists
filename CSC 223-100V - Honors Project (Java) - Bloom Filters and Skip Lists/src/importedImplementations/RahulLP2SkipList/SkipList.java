@@ -543,7 +543,7 @@ public class SkipList<T extends Comparable<? super T>> {
 	 * Prints skip list, 
 	 * giving next[] horizontally for each entry.
 	 */
-	private void printList() {
+	public void printList() {
 		
 		System.out.println("printList(): maxLevel = "+maxLevel);
 		System.out.println("Index\tElement\tnext[]");
