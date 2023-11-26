@@ -68,13 +68,26 @@ public class JTestBench
   public static final int     MIN_POWER = 1;  // No less than 10**1 =          10 Objects in a set
   public static final int     MAX_POWER = 8;  // No more than 10**8 = 100_000_000 Objects in a set
   public static final double  SANGUPTA_BLOOM_FALSE_POSITIVE_RATE = 0.01; // Rate of false positives in Sangupta Bloom Filter
-  public static final int     LOVASOA_BLOOM_BITS_PER_OBJECT = 8; // Number of bits per object to allocate for the Lovasoa Bloom Filter
+  public static final int     LOVASOA_BLOOM_BITS_PER_OBJECT = 8;    // Number of bits per object to allocate for the Lovasoa Bloom Filter
   
+  /**
+   * This is the conversion factor to make it easier to read
+   * 
+   * @note ThreadMXBean returns times in nanoseconds.
+   *         1_000 converts times to microseconds output
+   *     1_000_000 converts times to  miliseconds output
+   * 1_000_000_000 converts times to      seconds output
+   */ 
+//  public static final int     DURATION_TIMESCALE_QUOTIENT =             1;
+  public static final int     DURATION_TIMESCALE_QUOTIENT =         1_000;
+//  public static final int     DURATION_TIMESCALE_QUOTIENT =     1_000_000;
+//  public static final int     DURATION_TIMESCALE_QUOTIENT = 1_000_000_000;
+ 
   // Is this a valid instatnce of JTestBench?
   private boolean isValid = false;  
   
-  // The bean for counting
-  private ThreadMXBean myBenchBean = null;
+  // The bean for counting...
+  private ThreadMXBean myBenchBean = null; // ...but it's not ready for counting yet.
   
   /**
    * Timers for each phase of testing
@@ -250,7 +263,8 @@ public class JTestBench
   }
 
   /**
-   * @return
+   * Compile the given options into an enum constant
+   * @return (JBenchSetType) The exact configuration of this JTestBench instance.
    */
   private JBenchSetType makeOptionsSet()
   {
@@ -258,29 +272,22 @@ public class JTestBench
     
     if (myBloom == JBloomType.Lovasoa)
     {
-      if (myGrid == JGridSysType.GARS)
-      {
-        outType = JBenchSetType.LBloomGARSLP2;
-      }
-      else
-      {
-        outType = JBenchSetType.LBloomMGRSLP2;
-      }
+      if (myGrid == JGridSysType.GARS) {outType = JBenchSetType.LBloomGARSLP2;}
+      else {outType = JBenchSetType.LBloomMGRSLP2;}
     }
     else if (myBloom == JBloomType.Sangupta)
     {
-      if (myGrid == JGridSysType.GARS)
-      {
-        outType = JBenchSetType.SBloomGARSLP2;
-      }
-      else
-      {
-        outType = JBenchSetType.SBloomMGRSLP2;
-      }
+      if (myGrid == JGridSysType.GARS) {outType = JBenchSetType.SBloomGARSLP2;}
+      else {outType = JBenchSetType.SBloomMGRSLP2;}
     }
+    
     return outType;
   }
-
+  
+  /**
+   * Is this a valid construction of a JTestBench?
+   * @return (boolean) Whether the construction is valid or not.
+   */
   public boolean isValid()
   {
     return this.isValid;
@@ -303,18 +310,30 @@ public class JTestBench
   
   public void startup()
   {
+    /**
+     * Time the Creation of the data sets.
+     */
     this.timeCreateStart  = this.getBeanCount();
     this.doCreate();
     this.timeCreateEnd    = this.getBeanCount();
     
+    /**
+     * Time the Verification of the data sets.
+     */
     this.timeVerifyStart  = this.getBeanCount();
     this.doVerify();
     this.timeVerifyEnd    = this.getBeanCount();
     
+    /**
+     * Time the Modification of the data sets.
+     */
     this.timeModifyStart  = this.getBeanCount();
     this.doModify();
     this.timeModifyEnd    = this.getBeanCount();
     
+    /**
+     * Shut it down and output the results
+     */
     this.shutdown();
   }
   
@@ -333,201 +352,202 @@ public class JTestBench
     long numFails = 0; // Keep count of number of misses in the Skip List for objects not found
         
     JTheDataSetObject tmpO = null; // Temporary data set object for creating all the various sets
-    lovaBloom
+    lovaBloom = null;
     
-    switch (myBenchSet)
-    {
-      case LBloomGARSLP2:
-      {
-        for (int i = 0; i < powersOf10Start; i++)
-        {
-          sizeSet *= 10;
-        }
-        sizeBloom *= sizeSet;
-        
-        lBF = new LovaBloomFilter(sizeSet, sizeBloom);
-        sL = new SkipList<JTheDataSetObject>();
-        
-        for (int i = 0; i < sizeSet; i++)
-        {
-          tmpP = new JTheDataSetObject(JHashType.GARS, rng);  // Make new point object
-          lBF.add(tmpP);                                      // Add it to the Bloom Filter
-          sL.add(tmpP);                                       // Add it to the Skip List
-          if (randFail(rng, myFRate)) // Add it to Test Set (unless randomly fails)
-          {
-            TestSet.add(JTheDataSetObject.makeBad(rng));
-            //ot.println("Random");
-            numRands++;
-          }
-          else
-          {
-            TestSet.add(tmpP);
-          }
-        }
-        for (int x = 0; x < TestSet.size(); x++)
-        {
-          ot.println(TestSet.at(x).toString());
-        }
-        ot.println("Number of Randoms in (Lovasoa) Test Set:             " + numRands);
-
-        
-        break;  
-      }
-      case LBloomMGRSLP2:
-      {
-        break;
-      }
-      case SBloomGARSLP2:
-      {
-        int sizeSet = 1;
-        int sizeBloom = 16;
-        long numRands = 0;
-        Random rng = new Random (this.mySeed);
-        JTheDataSetObject tmpP = null;
-        for (int i = 0; i < powersOf10Start; i++)
-        {
-          sizeSet *= 10;
-        }
-        sizeBloom *= sizeSet;
-        
-        sBF = new InMemoryBloomFilter<JTheDataSetObject>(sizeSet, 0.0005);
-        sL = new SkipList<JTheDataSetObject>();
-        
-        for (int i = 0; i < sizeSet; i++)
-        {
-          tmpP = new JTheDataSetObject(JHashType.GARS, rng);  // Make new point object
-          sBF.add(tmpP);                                      // Add it to the Bloom Filter
-          sL.add(tmpP);                                       // Add it to the Skip List
-          if (randFail(rng, myFRate)) // Add it to Test Set (unless randomly fails)
-          {
-            TestSet.add(JTheDataSetObject.makeBad());
-            //ot.println("Random");
-            numRands++;
-          }
-          else
-          {
-            TestSet.add(tmpP);
-          }
-          tmpP = null;
-        }
-        ot.println("Number of Randoms in (Sangupta) Test Set:             " + numRands);
-
-        
-        break;
-      }
-      case SBloomMGRSLP2:
-      {
-        break;
-      }
-    }
+//    switch (myBenchSet)
+//    {
+//      case LBloomGARSLP2:
+//      {
+//        for (int i = 0; i < powersOf10Start; i++)
+//        {
+//          sizeSet *= 10;
+//        }
+//        sizeBloom *= sizeSet;
+//        
+//        lBF = new LovaBloomFilter(sizeSet, sizeBloom);
+//        sL = new SkipList<JTheDataSetObject>();
+//        
+//        for (int i = 0; i < sizeSet; i++)
+//        {
+//          tmpP = new JTheDataSetObject(JHashType.GARS, rng);  // Make new point object
+//          lBF.add(tmpP);                                      // Add it to the Bloom Filter
+//          sL.add(tmpP);                                       // Add it to the Skip List
+//          if (randFail(rng, myFRate)) // Add it to Test Set (unless randomly fails)
+//          {
+//            TestSet.add(JTheDataSetObject.makeBad(rng));
+//            //ot.println("Random");
+//            numRands++;
+//          }
+//          else
+//          {
+//            TestSet.add(tmpP);
+//          }
+//        }
+//        for (int x = 0; x < TestSet.size(); x++)
+//        {
+//          ot.println(TestSet.at(x).toString());
+//        }
+//        ot.println("Number of Randoms in (Lovasoa) Test Set:             " + numRands);
+//
+//        
+//        break;  
+//      }
+//      case LBloomMGRSLP2:
+//      {
+//        break;
+//      }
+//      case SBloomGARSLP2:
+//      {
+//        int sizeSet = 1;
+//        int sizeBloom = 16;
+//        long numRands = 0;
+//        Random rng = new Random (this.mySeed);
+//        JTheDataSetObject tmpP = null;
+//        for (int i = 0; i < powersOf10Start; i++)
+//        {
+//          sizeSet *= 10;
+//        }
+//        sizeBloom *= sizeSet;
+//        
+//        sBF = new InMemoryBloomFilter<JTheDataSetObject>(sizeSet, 0.0005);
+//        sL = new SkipList<JTheDataSetObject>();
+//        
+//        for (int i = 0; i < sizeSet; i++)
+//        {
+//          tmpP = new JTheDataSetObject(JHashType.GARS, rng);  // Make new point object
+//          sBF.add(tmpP);                                      // Add it to the Bloom Filter
+//          sL.add(tmpP);                                       // Add it to the Skip List
+//          if (randFail(rng, myFRate)) // Add it to Test Set (unless randomly fails)
+//          {
+//            TestSet.add(JTheDataSetObject.makeBad());
+//            //ot.println("Random");
+//            numRands++;
+//          }
+//          else
+//          {
+//            TestSet.add(tmpP);
+//          }
+//          tmpP = null;
+//        }
+//        ot.println("Number of Randoms in (Sangupta) Test Set:             " + numRands);
+//
+//        
+//        break;
+//      }
+//      case SBloomMGRSLP2:
+//      {
+//        break;
+//      }
+//    }
   }
 
   private void doVerify()
   {
-    boolean     inSet;
-    JTheDataSetObject tob = null;
-
-    switch (myBenchSet)
-    {
-      case LBloomGARSLP2:
-      {
-        long numSkipFails = 0;
-        long numBloomFails = 0;
-        ListIterator<JTheDataSetObject> iT = TestSet.listIterator();
-        while (iT.hasNext())
-        {
-          tob = null;
-          tob = iT.next();
-          ot.println(tob);
-          if (lBF.contains(tob)) // If in Bloom Filter
-          {
-            // Then find it in the Skip List
-            inSet = sL.contains(tob);
-            if (!inSet)
-            {
-              //ot.println(inSet);
-              numSkipFails++;
-            }
-          }
-          else
-          {
-            numBloomFails++;
-          }
-        }
-        ot.println("-------");
-        sL.printList();
-        ot.println("--------");
-        ot.println();
-        ot.println("Number of objects outside of (Lovasoa) The Data Set Skip List:    " + numSkipFails);
-        ot.println("Number of objects outside of (Lovasoa) The Data Set Bloom Filter: " + numBloomFails);
-        
-        break;  
-      }
-      case LBloomMGRSLP2:
-      {
-        break;
-      }
-      case SBloomGARSLP2:
-      {
-        long numSkipFails = 0;
-        long numBloomFails = 0;
-        ListIterator<JTheDataSetObject> iT = TestSet.listIterator();
-        while (iT.hasNext())
-        {
-          tob = null;
-          tob = iT.next();
-          ot.println(tob);
-          if (sBF.contains(tob)) // If in Bloom Filter
-          {
-            // Then find it in the Skip List
-            inSet = sL.contains(tob);
-            if (!inSet)
-            {
-              //ot.println(inSet);
-              numSkipFails++;
-            }
-          }
-          else
-          {
-            numBloomFails++;
-          }
-        }
-        ot.println("-------");
-        sL.printList();
-        ot.println("--------");
-        ot.println();
-        ot.println("Number of objects outside of (Sangupta) The Data Set Skip List:    " + numSkipFails);
-        ot.println("Number of objects outside of (Sangupta) The Data Set Bloom Filter: " + numBloomFails);
-        break;
-      }
-      case SBloomMGRSLP2:
-      {
-        break;
-      }
-    }
+    
+//    boolean     inSet;
+//    JTheDataSetObject tob = null;
+//
+//    switch (myBenchSet)
+//    {
+//      case LBloomGARSLP2:
+//      {
+//        long numSkipFails = 0;
+//        long numBloomFails = 0;
+//        ListIterator<JTheDataSetObject> iT = TestSet.listIterator();
+//        while (iT.hasNext())
+//        {
+//          tob = null;
+//          tob = iT.next();
+//          ot.println(tob);
+//          if (lBF.contains(tob)) // If in Bloom Filter
+//          {
+//            // Then find it in the Skip List
+//            inSet = sL.contains(tob);
+//            if (!inSet)
+//            {
+//              //ot.println(inSet);
+//              numSkipFails++;
+//            }
+//          }
+//          else
+//          {
+//            numBloomFails++;
+//          }
+//        }
+//        ot.println("-------");
+//        sL.printList();
+//        ot.println("--------");
+//        ot.println();
+//        ot.println("Number of objects outside of (Lovasoa) The Data Set Skip List:    " + numSkipFails);
+//        ot.println("Number of objects outside of (Lovasoa) The Data Set Bloom Filter: " + numBloomFails);
+//        
+//        break;  
+//      }
+//      case LBloomMGRSLP2:
+//      {
+//        break;
+//      }
+//      case SBloomGARSLP2:
+//      {
+//        long numSkipFails = 0;
+//        long numBloomFails = 0;
+//        ListIterator<JTheDataSetObject> iT = TestSet.listIterator();
+//        while (iT.hasNext())
+//        {
+//          tob = null;
+//          tob = iT.next();
+//          ot.println(tob);
+//          if (sBF.contains(tob)) // If in Bloom Filter
+//          {
+//            // Then find it in the Skip List
+//            inSet = sL.contains(tob);
+//            if (!inSet)
+//            {
+//              //ot.println(inSet);
+//              numSkipFails++;
+//            }
+//          }
+//          else
+//          {
+//            numBloomFails++;
+//          }
+//        }
+//        ot.println("-------");
+//        sL.printList();
+//        ot.println("--------");
+//        ot.println();
+//        ot.println("Number of objects outside of (Sangupta) The Data Set Skip List:    " + numSkipFails);
+//        ot.println("Number of objects outside of (Sangupta) The Data Set Bloom Filter: " + numBloomFails);
+//        break;
+//      }
+//      case SBloomMGRSLP2:
+//      {
+//        break;
+//      }
+//    }
   }
 
   private void doModify()
   {
-    switch (myBenchSet)
-    {
-      case LBloomGARSLP2:
-      {
-        break;  
-      }
-      case LBloomMGRSLP2:
-      {
-        break;
-      }
-      case SBloomGARSLP2:
-      {
-        break;
-      }
-      case SBloomMGRSLP2:
-      {
-        break;
-      }
-    }
+//    switch (myBenchSet)
+//    {
+//      case LBloomGARSLP2:
+//      {
+//        break;  
+//      }
+//      case LBloomMGRSLP2:
+//      {
+//        break;
+//      }
+//      case SBloomGARSLP2:
+//      {
+//        break;
+//      }
+//      case SBloomMGRSLP2:
+//      {
+//        break;
+//      }
+//    }
   }
 
   private void shutdown()
