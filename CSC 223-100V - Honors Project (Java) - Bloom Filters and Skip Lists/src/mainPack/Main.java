@@ -30,35 +30,15 @@ public class Main
   {
     PrintStream o = new PrintStream(System.out);
     Scanner     i = new Scanner(System.in);
-    
-    JTheDataSetObject t1;
-    JTheDataSetObject t2;
-    
-    JTestBench b1;
-    
-    t1 = new JTheDataSetObject(43.21, -21.3, 0, JHashType.GARS);
-    t2 = new JTheDataSetObject(-72.0, 64.479927, 100, JHashType.MGRS);
-    
     long seed = 0;
     String trash = "";
     boolean goodSeed = false;
+    byte strt;
+    byte nd;
+
     
-    o.println("t1 GARS Hash String: " + t1.toHashString());
-    t1.setHashType(JHashType.MGRS);
-    o.println("t1 MGRS Hash String: " + t1.toHashString());
-    o.println("t1 MGRS: " + t1.getMyMGRS());
-    
-    o.println();
-    
-    o.println("t2 MGRS: " + t2.getMyMGRS());
-    o.println("t2 MGRS Hash String: " + t2.toHashString());
-    t2.setHashType(JHashType.GARS);
-    o.println("t2 GARS Hash String: " + t2.toHashString());
-    
-    o.println();
-    o.println(t1.toString());
-    o.println(t2.toString());
-    
+    JTestBench b1;
+    JTestBench b2;
     while (!goodSeed)
     {
       try
@@ -84,9 +64,145 @@ public class Main
       }
     }
     
-    b1 = new JTestBench(seed);
+    strt  = (byte)1;
+    nd    = (byte)1;
+    b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 0.7);
+    b1.startup();
+    
+    myPause();
+    
+    b2 = new JTestBench(seed, JBloomType.Sangupta, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 0.7);
+    b2.startup();
     
     i.close();
     o.close();
   }
+  private static void myPause()
+  { 
+         System.out.println("Press Enter key to continue...");
+         try
+         {
+             System.in.read();
+         }  
+         catch(Exception e)
+         {}  
+  }
+
 }
+
+// Old Stuff
+/*   
+JTheDataSetObject t1;
+JTheDataSetObject t2;
+*/
+/*    
+t1 = new JTheDataSetObject(43.21, -21.3, 0, JHashType.GARS);
+t2 = new JTheDataSetObject(-72.0, 64.479927, 100, JHashType.MGRS);
+
+o.println("t1 GARS Hash String: " + t1.toHashString());
+t1.setHashType(JHashType.MGRS);
+o.println("t1 MGRS Hash String: " + t1.toHashString());
+o.println("t1 MGRS: " + t1.getMyMGRS());
+
+o.println();
+
+o.println("t2 MGRS: " + t2.getMyMGRS());
+o.println("t2 MGRS Hash String: " + t2.toHashString());
+t2.setHashType(JHashType.GARS);
+o.println("t2 GARS Hash String: " + t2.toHashString());
+
+o.println();
+o.println(t1.toString());
+o.println(t2.toString());
+*/    
+
+
+/*
+--------------------------------------------------------------------------------
+----  The blank lines below are to aid me in keeping the last line of this  ----
+----  file vertically centered and above the very bottom of my very large   ---- 
+----  monitor.                                                              ----
+--------------------------------------------------------------------------------
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

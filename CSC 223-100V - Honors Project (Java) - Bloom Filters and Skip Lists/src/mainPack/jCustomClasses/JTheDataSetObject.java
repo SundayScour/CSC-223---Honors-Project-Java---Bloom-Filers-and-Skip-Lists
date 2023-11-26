@@ -26,19 +26,22 @@ import mainPack.jCustomClasses.*;
 /**
  * 
  */
-public class JTheDataSetObject
+public class JTheDataSetObject implements Comparable<JTheDataSetObject>
 {
   // Min., max. for Latitude (in decimal degrees)
-  public static final double MIN_LAT =    -90.0;
-  public static final double MAX_LAT =     90.0;
+  public static final double  MIN_LAT =    -90.0;
+  public static final double  MAX_LAT =     90.0;
+  public static final double  RNG_LAT = MAX_LAT - MIN_LAT;
   
   // Min., max. for Longitude (in decimal degrees)
-  public static final double MIN_LON =   -180.0;
-  public static final double MAX_LON =    180.0;
+  public static final double  MIN_LON =   -180.0;
+  public static final double  MAX_LON =    180.0;
+  public static final double  RNG_LON = MAX_LON - MIN_LON;
   
   // Min., max. for Altitude (in meters)
-  public static final int    MIN_ALT =        0;
-  public static final int    MAX_ALT =  999_999; // 0 to 999 Kilometers
+  public static final int     MIN_ALT =        0;
+  public static final int     MAX_ALT =  999_999; // 0 to 999 Kilometers
+  public static final int     RNG_ALT = MAX_ALT - MIN_ALT;
   
   /**
    * The object's Latitude, in decimal degrees.
@@ -97,6 +100,12 @@ public class JTheDataSetObject
     isValid = false;
   }
   
+  public JTheDataSetObject(JHashType inType, Random rng)
+  {
+    theRandomizer(inType, rng);
+    isValid = true;
+  }
+  
   /**
    * A proper constructor that makes a valid JTheDataSetObject object.
    * 
@@ -105,7 +114,7 @@ public class JTheDataSetObject
    * @param inLon
    *        Longitude of created object
    */
-  public JTheDataSetObject(double inLat, double inLon, int inAlt, JHashType inType)
+  public JTheDataSetObject(double inLat, double inLon, int inAlt, JHashType inType, Random rng)
   {
     this.myLat  = inLat;
     this.myLon  = inLon;
@@ -121,7 +130,7 @@ public class JTheDataSetObject
     
     this.myMGRS = tmpGARS.toString();
     
-    this.myPay  = "" + makeRandomName() + " " + makeRandomName() + " " + makeRandomName();
+    this.myPay  = "" + makeRandomName(rng) + " " + makeRandomName(rng) + " " + makeRandomName(rng);
     this.myHashType = inType;
     this.isValid = true;
   }
@@ -159,6 +168,39 @@ public class JTheDataSetObject
     }
   }
 
+  @Override
+  public int compareTo(JTheDataSetObject o)
+  {
+    int retVal;
+    
+    if (this.myLon < o.myLon)
+    {
+      retVal = -1;
+    }
+    else if (this.myLon > o.myLon)
+    {
+      retVal = 1;
+    }
+    else
+    {
+      if (this.myLat < o.myLat)
+      {
+        retVal = -1;
+      }
+      else if (this.myLat > o.myLat)
+      {
+        retVal = 1;
+      }
+      else
+      {
+        retVal = 0;
+      }
+    }
+    
+    return retVal;
+  }
+
+  
   public void setHashType(JHashType newType)
   {
     this.myHashType = newType;
@@ -270,6 +312,32 @@ public class JTheDataSetObject
   {
     return isValid;
   }
+  
+  public void theRandomizer(JHashType inType, Random rng)
+  {
+    this.myLat  = MIN_LAT + RNG_LAT * rng.nextDouble();
+    this.myLon  = MIN_LON + RNG_LON * rng.nextDouble();
+    this.myAlt  = MIN_ALT + RNG_ALT * rng.nextInt();
+        
+    this.myGARS = LLtoGARS.getGARS(myLat, myLon);
+    
+    // Temporary objects used only to construct the MGRS object and get its code as a String.
+    importedImplementations.NGA_MGRS.mgrs.mil.nga.grid.features.Point tmpPoint = 
+        new importedImplementations.NGA_MGRS.mgrs.mil.nga.grid.features.Point(myLat, myLon);
+    MGRS tmpGARS = MGRS.from(tmpPoint);
+    
+    this.myMGRS = tmpGARS.toString();
+    
+    this.myPay  = "" + makeRandomName(rng) + " " + makeRandomName(rng) + " " + makeRandomName(rng);
+    this.myHashType = inType;
+    this.isValid = true;
+  }
+  
+  public static JTheDataSetObject makeBad()
+  {
+    JTheDataSetObject BadOne = new JTheDataSetObject();
+    return BadOne;
+  }
 
   /**
    * Helper function copied from previous semester's Final Project:
@@ -280,9 +348,9 @@ public class JTheDataSetObject
    * @return String
    *         One random name from the hardcoded set of 52 possible names: 26 female, 26 male, both A to Z. 
    */
-  private String makeRandomName()
+  private String makeRandomName(Random rng)
   {
-    Random rnd = new Random();
+    //Random rnd = new Random();
     int x = -1;
     String[] names = {"Alice",
                       "Andrew",
@@ -336,7 +404,7 @@ public class JTheDataSetObject
                       "Yoshihiro",
                       "Zelda",
                       "Zenon"};
-    x = rnd.nextInt(51);
+    x = rng.nextInt(51);
     return names[x];    
   }
 }

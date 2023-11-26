@@ -4,7 +4,7 @@ import java.util.BitSet;
 import java.util.Random;
 import java.util.Iterator;
 
-public class BloomFilter implements Cloneable {
+public class LovaBloomFilter implements Cloneable {
   private BitSet hashes;
   private RandomInRange prng;
   private int k; // Number of hash functions
@@ -15,7 +15,7 @@ public class BloomFilter implements Cloneable {
    * @param n Expected number of elements
    * @param m Desired size of the container in bits
    **/
-  public BloomFilter(int n, int m) {
+  public LovaBloomFilter(int n, int m) {
     k = (int) Math.round(LN2 * m / n);
     if (k <= 0) k = 1;
     this.hashes = new BitSet(m);
@@ -26,7 +26,7 @@ public class BloomFilter implements Cloneable {
    * Create a bloom filter of 1Mib.
    * @param n Expected number of elements
    **/
-  public BloomFilter(int n) {
+  public LovaBloomFilter(int n) {
     this(n, 1024*1024*8);
   }
 
@@ -62,8 +62,8 @@ public class BloomFilter implements Cloneable {
   /**
    * Create a copy of the current filter
    **/
-  public BloomFilter clone() throws CloneNotSupportedException {
-    return (BloomFilter) super.clone();
+  public LovaBloomFilter clone() throws CloneNotSupportedException {
+    return (LovaBloomFilter) super.clone();
   }
 
   /**
@@ -78,7 +78,7 @@ public class BloomFilter implements Cloneable {
    * WARNING: two filters may contain the same elements, but not be equal
    * (if the filters have different size for example).
    */
-  public boolean equals(BloomFilter other) {
+  public boolean equals(LovaBloomFilter other) {
     return this.hashes.equals(other.hashes) && this.k == other.k;
   }
 
@@ -87,7 +87,7 @@ public class BloomFilter implements Cloneable {
    * After this operation, the current bloom filter contains all elements in
    * other.
    **/
-  public void merge(BloomFilter other) {
+  public void merge(LovaBloomFilter other) {
     if (other.k != this.k || other.hashes.size() != this.hashes.size()) {
       throw new IllegalArgumentException("Incompatible bloom filters");
     }
