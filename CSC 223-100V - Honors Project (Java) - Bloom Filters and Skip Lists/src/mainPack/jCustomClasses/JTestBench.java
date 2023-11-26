@@ -63,6 +63,54 @@ import mainPack.jCustomClasses.*;
 public class JTestBench
 {
   /**
+   * JTestBench instance values
+   */
+  
+  
+  /**
+   * Will become a Random object with seed mySeed, each time a Random needs to start fresh.
+   */
+  private Random  tbRng;
+  
+  /**
+   * The size of the sets for a given run
+   */
+  private int     sizeSet;
+  
+  /**
+   * The False Positvity Rate needed to instantiate a Sangupta Bloom Filter
+   * 
+   * @Note This is determined by (static final) SANGUPTA_BLOOM_FALSE_POSITIVE_RATE
+   */
+  double  fPosRate;
+  
+  /**
+   * The Bits per Object needed to instantiate a Lovasoa Bloom Filter
+   * 
+   * @Note This is determined by (static final) LOVASOA_BLOOM_BITS_PER_OBJECT
+   */
+  int     bitsPerObj;
+  
+  /**
+   * The actual constructed size of a Lovasoa Bloom Filter
+   * 
+   * @Note This is calulated as (bitsPerObj * sizeSet)
+   */
+  int     sizeLBloom;
+  
+  boolean doesItFail; // To determine whether a given object in The Data Set goes into Test Set, based on myFailRate
+  
+  /**
+   * Keep count of number of Bad entries, i.e. number of objects in Test Set NOT IN The Data Set
+   */
+  long numBads;
+  
+  /**
+   * Keep count of number of misses in the Skip List for objects not found
+   */
+  long numFails;
+  
+  /**
    * Limit constants
    */
   public static final int     MIN_POWER = 1;  // No less than 10**1 =          10 Objects in a set
@@ -73,7 +121,7 @@ public class JTestBench
   /**
    * This is the conversion factor to make it easier to read
    * 
-   * @note ThreadMXBean returns times in nanoseconds.
+   * @Note ThreadMXBean returns times in nanoseconds.
    *         1_000 converts times to microseconds output
    *     1_000_000 converts times to  miliseconds output
    * 1_000_000_000 converts times to      seconds output
@@ -148,7 +196,6 @@ public class JTestBench
    * Curated Random class object seed for repeatability
    */
   private long    mySeed  = 0;          // "Keep it secret, keep it safe...", but not really; it just needs to stay the same.
-  private Random  rnd     = null;       // Will become a Random object with seed mySeed, each time a Random needs to start fresh.
   
   /**
    * 
@@ -184,7 +231,7 @@ public class JTestBench
   /*******
    * Default constructor for a JTestBench object instantiation. 
    * Makes an invalid instance. 
-   * @note DO. NOT. USE. EVER.
+   * @Note DO. NOT. USE. EVER.
    * _..._
    * (I used it any way.)
    */
@@ -243,7 +290,7 @@ public class JTestBench
     
     /**
      * All done constructing this particular instance/instantiation of a JTestBench object.
-     * @note It is valid.
+     * @Note It is valid.
      */
     this.isValid          = true;
   }
@@ -311,6 +358,18 @@ public class JTestBench
   public void startup()
   {
     /**
+     * Initialize the Random for this JTestBench instance
+     */
+    this.tbRng    = new Random(mySeed); // Initialize Random from the seed, for same data in ALL sets of a JTechBench object
+    this.sizeSet  = potCurr; // Size of sets to make TODO: run once per power of 10 up to powerOf10End
+    this.fPosRate    = SANGUPTA_BLOOM_FALSE_POSITIVE_RATE; // False positivity rate in a Sangupta Bloom Filter
+    this.bitsPerObj  = LOVASOA_BLOOM_BITS_PER_OBJECT; // Number of bits per object in a Lovasoa Bloom Filter
+    this.sizeLBloom  = sizeSet * bitsPerObj;         // Size passed into Lovasoa Bloom Filters
+    
+    boolean doesItFail; // To determine whether a given object in The Data Set goes into Test Set, based on myFailRate 
+    
+        
+    /**
      * Time the Creation of the data sets.
      */
     this.timeCreateStart  = this.getBeanCount();
@@ -372,20 +431,7 @@ public class JTestBench
    */
   private void doCreate()
   {
-    Random  rng         = new Random(this.mySeed); // Initialize Random from the seed, for same data in ALL sets of a JTechBench object
-    
-    int     sizeSet     = potCurr; // Size of sets to make TODO: run once per power of 10 up to powerOf10End
-    
-    double  fPosRate    = SANGUPTA_BLOOM_FALSE_POSITIVE_RATE; // False positivity rate in a Sangupta Bloom Filter
-    int     bitsPerObj  = LOVASOA_BLOOM_BITS_PER_OBJECT; // Number of bits per object in a Lovasoa Bloom Filter
-    int     sizeLBloom  = sizeSet * bitsPerObj;         // Size passed into Lovasoa Bloom Filters
-    
-    boolean doesItFail; // To determine whether a given object in The Data Set goes into Test Set, based on myFailRate 
-    
-    /**
-     * Keep count of number of Bad entries, i.e. number of objects in Test Set NOT IN The Data Set
-     */
-    long numBads  = 0;
+    numBads  = 0;
         
     JTheDataSetObject tmpObj      = null; // Temporary data set object for creating all the various sets
     JTheDataSetObject tmpObjFail  = null; // Temporary data set object that is outide of The Data Set, 
@@ -394,7 +440,7 @@ public class JTestBench
     /**
      * Create a Bloom Filter for this JTestBench object, to quickly eliminate objects NOT in The Data Set.
      * 
-     * @note Construct and initialize the correct Bloom Filter, based on (JBloomType) myBloom. 
+     * @Note Construct and initialize the correct Bloom Filter, based on (JBloomType) myBloom. 
      */
     if (this.myBloom == JBloomType.Sangupta)  {sangBloom = new InMemoryBloomFilter<JTheDataSetObject>(sizeSet, fPosRate);}
     else                                      {lovaBloom = new LovaBloomFilter(sizeSet, sizeLBloom);}
@@ -402,11 +448,11 @@ public class JTestBench
     /**
      * Create a Skip List to contain The Data Set
      * 
-     * @note For verification purposes, objects put into the Skip List (and the Bloom Filter)
+     * @Note For verification purposes, objects put into the Skip List (and the Bloom Filter)
      *       will ALSO BE PUT INTO a stack which I consider as the REAL The Data Set, of 
      *       which, this Skip List is merely a COPY.
      *
-     * @note Also, I have not made my OWN Skip List implementation, so Long-Project-2 Skip List will have to do...
+     * @Note Also, I have not made my OWN Skip List implementation, so Long-Project-2 Skip List will have to do...
      * TODO: Make my own implementation.
      */
     if (this.mySkip == JSkipListType.LP2) {LP2Skip = new SkipList<JTheDataSetObject>();}
@@ -414,7 +460,7 @@ public class JTestBench
     /**
      * Add the requisite number of objects into each data set.
      * 
-     *  @note Some proper objects in The Data Set (both of them) will have
+     *  @Note Some proper objects in The Data Set (both of them) will have
      *        an invalid object complement in Test Set, based on stochastic
      *        function that makes a certain percentage of objects in the 
      *        Test Set outside of (not included in) The Data Set. This is
@@ -424,9 +470,9 @@ public class JTestBench
     for (int k = 0; k < sizeSet; k++)
     {
       /* Make an object for the sets */
-      tmpObj      = new JTheDataSetObject(gridToHashType(), rng);
-      tmpObjFail  = new JTheDataSetObject(gridToHashType(), rng, true);
-      doesItFail  = randFail(rng, myFailRate);
+      tmpObj      = new JTheDataSetObject(gridToHashType(), tbRng);
+      tmpObjFail  = new JTheDataSetObject(gridToHashType(), tbRng, true);
+      doesItFail  = randFail(tbRng, myFailRate);
       
       /* Stick 'em where they belong */
       TheDataSet.push(tmpObj);
@@ -454,14 +500,14 @@ public class JTestBench
   /**
    * Verify which objects in Test Set are also in The Data Set
    * 
-   * @note The Data Set has two copies:
+   * @Note The Data Set has two copies:
    *       The Bloom Filters and Skip List I am testing, and the
    *       Stack TheDataSet as a fool-proof backup for what 
    *       SHOULD be in the Skip List (and Bloom Filter).
    */
   private void doVerify()
   {
-    long numFails = 0; // Keep count of number of misses in the Skip List for objects not found
+    numFails = 0; // 
     
 //    boolean     inSet;
 //    JTheDataSetObject tob = null;
