@@ -130,7 +130,7 @@ public class JTheDataSetObject implements Comparable<JTheDataSetObject>
     
     this.myMGRS = tmpGARS.toString();
     
-    this.myPay  = "" + makeRandomName(rng) + " " + makeRandomName(rng) + " " + makeRandomName(rng);
+    this.myPay  = makeRandomName(rng) + makeRandomName(rng);// + " " + makeRandomName(rng);
     this.myHashType = inType;
     this.isValid = true;
   }
@@ -326,9 +326,11 @@ public class JTheDataSetObject implements Comparable<JTheDataSetObject>
     this.isValid = true;
   }
   
-  public static JTheDataSetObject makeBad()
+  public static JTheDataSetObject makeBad(Random rng)
   {
     JTheDataSetObject BadOne = new JTheDataSetObject();
+    BadOne.theRandomizer(JHashType.GARS, rng);
+    BadOne.isValid = false;
     return BadOne;
   }
   
@@ -359,59 +361,59 @@ public class JTheDataSetObject implements Comparable<JTheDataSetObject>
   {
     //Random rnd = new Random();
     int x = -1;
-    String[] names = {"Alice",
-                      "Andrew",
-                      "Barbara",
-                      "Bob",
-                      "Clara",
-                      "Cody",
-                      "Denise",
-                      "Daniel",
-                      "Erica",
-                      "Eren",
-                      "Frauline",
-                      "Franklin",
-                      "Gwen",
-                      "Gaige",
-                      "Hazel",
-                      "Henry",
-                      "Ingrid",
-                      "Ichiro",
-                      "Jasmine",
-                      "Jon",
-                      "Karen",
-                      "Keith",
-                      "Lauren",
-                      "Langston",
-                      "Melody",
-                      "Maximillion",
-                      "Nadia",
-                      "Nathan",
-                      "Ophalia",
-                      "Oberon",
-                      "Pixie",
-                      "Paul",
-                      "Quinn",
-                      "Quill",
-                      "Robin",
-                      "Roger",
-                      "Svetlana",
-                      "Slade",
-                      "Toya",
-                      "Tim",
-                      "Usha",
-                      "Uriel",
-                      "Veronica",
-                      "Viggo",
-                      "Winona",
-                      "Wies",
-                      "Xochitl",
-                      "Xander",
-                      "Ylva",
-                      "Yoshihiro",
-                      "Zelda",
-                      "Zenon"};
-    x = rng.nextInt(51);
+    String[] names = {"Alice    ", "Amanda  ",
+                      "Andrew   ", "Adaman  ",
+                      "Barbara  ", "Beatris ",
+                      "Bob      ", "Brandon ",
+                      "Clara    ", "Connie  ",
+                      "Cody     ", "Charles ",
+                      "Denise   ", "Dana    ",
+                      "Daniel   ", "Douglas ",
+                      "Erica    ", "Evelyn  ",
+                      "Eren     ", "Edward  ",
+                      "Frauline ", "Feorie  ",
+                      "Franklin ", "Fred    ",
+                      "Gwen     ", "Ginny   ",
+                      "Gaige    ", "Graber  ",
+                      "Hazel    ", "Hanna   ",
+                      "Henry    ", "Hank    ",
+                      "Ingrid   ", "Ia      ",
+                      "Ichiro   ", "Ian     ",
+                      "Jasmine  ", "Jody    ",
+                      "Jon      ", "Jeremy  ",
+                      "Karen    ", "Kat     ",
+                      "Keith    ", "Kenny   ",
+                      "Lauren   ", "Lisa    ",
+                      "Langston ", "Larold  ",
+                      "Melody   ", "MeiMei  ",
+                      "Maximan  ", "Mathew  ",
+                      "Nadia    ", "Naani   ",
+                      "Nathan   ", "Nerd    ",
+                      "Ophalia  ", "Oppai   ",
+                      "Oberon   ", "Othello ",
+                      "Pixie    ", "Posh    ",
+                      "Paul     ", "Potter  ",
+                      "Quinn    ", "Quiana  ",
+                      "Quill    ", "Quang   ",
+                      "Robin    ", "Rachael ",
+                      "Roger    ", "Richard ",
+                      "Svetlana ", "Sally   ",
+                      "Slade    ", "Samwise ",
+                      "Toya     ", "Theresa ",
+                      "Tim      ", "Tony    ",
+                      "Usha     ", "Uma     ",
+                      "Uriel    ", "Ulrich  ",
+                      "Veronica ", "Valerie ",
+                      "Viggo    ", "Victor  ",
+                      "Winona   ", "Wanda   ",
+                      "Wies     ", "Westley ",
+                      "Xochitl  ", "Xi      ",
+                      "Xander   ", "Xriss   ",
+                      "Ylva     ", "Yaaya   ",
+                      "Yoshiro  ", "Yyuman  ",
+                      "Zelda    ", "Zeyphr  ",
+                      "Zenon    ", "Zeus    "}; 
+    x = rng.nextInt(102);
     return names[x];    
   }
 }

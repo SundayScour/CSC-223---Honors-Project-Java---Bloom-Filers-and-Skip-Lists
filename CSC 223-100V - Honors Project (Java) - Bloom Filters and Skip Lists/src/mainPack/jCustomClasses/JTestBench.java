@@ -21,6 +21,7 @@ import java.util.ListIterator;
  */
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Stack;
 import java.util.Vector;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -64,8 +65,10 @@ public class JTestBench
   /**
    * Limit constants
    */
-  public static final byte MIN_POWER = 1;
-  public static final byte MAX_POWER = 8;
+  public static final int     MIN_POWER = 1;  // No less than 10**1 =          10 Objects in a set
+  public static final int     MAX_POWER = 8;  // No more than 10**8 = 100_000_000 Objects in a set
+  public static final double  SANGUPTA_BLOOM_FALSE_POSITIVE_RATE = 0.01; // Rate of false positives in Sangupta Bloom Filter
+  public static final int     LOVASOA_BLOOM_BITS_PER_OBJECT = 8; // Number of bits per object to allocate for the Lovasoa Bloom Filter
   
   // Is this a valid instatnce of JTestBench?
   private boolean isValid = false;  
@@ -92,75 +95,85 @@ public class JTestBench
    * Configuration options for each created instance of JTestBench
    */
   
-  // The data structure implementations to use
-  private JBloomType    myBloom = JBloomType.Lovasoa;
-  private JGridSysType  myGrid  = JGridSysType.GARS;
-  private JSkipListType mySkip  = JSkipListType.LP2;
-  private JBenchSetType myBenchSet = JBenchSetType.LBloomGARSLP2;
+  // The data structure implementations to use, and their default values
+  private JBloomType    myBloom     = JBloomType.Lovasoa;
+  private JGridSysType  myGrid      = JGridSysType.GARS;
+  private JSkipListType mySkip      = JSkipListType.LP2;
+  private JBenchSetType myBenchSet  = JBenchSetType.LBloomGARSLP2;
   
-  private int           myFailRate; // Percentage of Test Set objects that are NOT in The Data Set
-  private double        myFRate;
+  /* THE FULL SETS (separate from the actual storage data structure implementation object instantiations) */
+  Stack<JTheDataSetObject>                TheDataSet; // The Data Set™
+  Stack<JTheDataSetObject>                TestSet;    // Test Set for this Bench
   
-  LovaBloomFilter                         lBF;        // Lovasoa Bloom Filter for this Bench
-  InMemoryBloomFilter<JTheDataSetObject>  sBF;        // Sangupta Bloom Filter for this Bench
-  SkipList<JTheDataSetObject>             sL;         // Skip List for this Bench
-  Vector<JTheDataSetObject>               TestSet;    // Test Set for this Bench
+  // Percentage of The Data Set objects that will NOT Test Set...
+  private int           myFailRate; // ...as an int...
+  private double        myFRate;    // ...as a double.
   
-  PrintStream ot;
-  Scanner     n;
-  String      trash;
+  LovaBloomFilter                         lovaBloom;        // Lovasoa Bloom Filter for this Bench
+  InMemoryBloomFilter<JTheDataSetObject>  sangBloom;        // Sangupta Bloom Filter for this Bench
+  SkipList<JTheDataSetObject>             LP2Skip;         // Skip List for this Bench
+  
+  PrintStream ot;     // Short alias for console output
+  Scanner     n;      // Short alias for console input
+  String      trash;  // Discard bad input
 
   
-  // The orders of magnitude of the size of The Data Set and Test Set. They will all be tried and times recorded.
-  private byte powersOf10Start  = 0;
-  private byte powersOf10End    = 0;
-  private byte powersOf10Range  = 0;
+  /**
+   *  The orders of magnitude of the size of The Data Set and Test Set. They will all be tried and times recorded.
+   */
+  private int powersOf10Start = 0;  // Where to start the series of runs for a given Bench
+  private int powersOf10End   = 0;  // Where to   end the series of runs for a given Bench
+  private int powersOf10Range = 0;  // The total number of runs in each series of runs for a given bench
+                                    // so as to cover the entire set of Orders of Magnitude for the sizes of the sets on the Bench
   
-  // Curated Random class object seed for repeatability
-  private long mySeed = 0;
+  private int potStart        = 0;  // Expanded form of powersOf10Start, i.e. 10 ** powersOf10Start
+  private int potEnd          = 0;  // Expanded form of powersOf10End  , i.e. 10 ** powersOf10End
   
-  private byte rectifyPowers(byte startP, byte endP)
+  private int potCurr         = 0;  // Expanded form of current size of the sets. TODO: iterate this variable over powersOf10Range
+  
+  /**
+   * Curated Random class object seed for repeatability
+   */
+  private long    mySeed  = 0;          // "Keep it secret, keep it safe...", but not really; it just needs to stay the same.
+  private Random  rnd     = null;       // Will become a Random object with seed mySeed, each time a Random needs to start fresh.
+  
+  /**
+   * 
+   * 
+   * @param powersOf10End
+   * @param powersOf10Start
+   * @return (int) rangeOfPowers 
+   *         This is the number of orders of magnitude over which to iterate to emirically determine time complexity of each implementation  
+   */
+  private int powersRange(int powersOf10End, int powersOf10Start)
   {
-    byte rangeOfPowers = 0;
+    int rangeOfPowers = 0;
     
     enforcePowerLimits();
-    
-    rangeOfPowers = (byte)((int)endP - (int)startP);
-    
-    if (rangeOfPowers < 0)
-    {
-      rangeOfPowers = 0;
-    }
+    rangeOfPowers = powersOf10Start - powersOf10End;
+    if (rangeOfPowers < 0) {rangeOfPowers = 0;}
     
     return rangeOfPowers;
   }
   
+  /**
+   * Keep powers within the declared limits
+   */
   private void enforcePowerLimits()
   {
-    if (this.powersOf10Start < MIN_POWER)
-    {
-      this.powersOf10Start = MIN_POWER;
-    }
-    else if (this.powersOf10Start > MAX_POWER)
-    {
-      this.powersOf10Start = MAX_POWER;
-    }
+    if (this.powersOf10Start < MIN_POWER) {this.powersOf10Start = MIN_POWER;}
+    else if (this.powersOf10Start > MAX_POWER) {this.powersOf10Start = MAX_POWER;}
     
-    if (this.powersOf10End < MIN_POWER)
-    {
-      this.powersOf10End = MIN_POWER;
-    }
-    else if (this.powersOf10End > MAX_POWER)
-    {
-      this.powersOf10End = MAX_POWER;
-    }
-
+    if (this.powersOf10End < MIN_POWER) {this.powersOf10End = MIN_POWER;}
+    else if (this.powersOf10End > MAX_POWER) {this.powersOf10End = MAX_POWER;}
   }
   
   /*******
    * Default constructor for a JTestBench object instantiation. 
    * Makes an invalid instance. 
    * @note DO. NOT. USE. EVER.
+   * _..._
+   * (I used it any way.)
    */
   public JTestBench()
   {
@@ -179,29 +192,63 @@ public class JTestBench
    * @param inEndPowerOf10 (byte) Ending (i.e. the largest) size, in power of 10, of The Data Set and Test Set during the Test Bench run
    */
   public JTestBench (long inSeed, JBloomType inBloomType, JGridSysType inGridSysType, JSkipListType inSkipListType, 
-      byte inStartPower, byte inEndPower, int inFailRate)
+      int inStartPower, int inEndPower, int inFailRate)
   {
     this.mySeed           = inSeed;
-    this.myBenchBean      = ManagementFactory.getThreadMXBean();
+    this.myBenchBean      = ManagementFactory.getThreadMXBean(); // Get ready to do some "bean counting", i.e. get CPU times
+    
+    // Configuration of implementations
     this.myBloom          = inBloomType;
     this.myGrid           = inGridSysType;
     this.mySkip           = inSkipListType;
     this.myBenchSet       = makeOptionsSet();
+    
+    // Powers of 10 for the sizes of the sets
     this.powersOf10Start  = inStartPower;
     this.powersOf10End    = inEndPower;
-    this.powersOf10Range  = rectifyPowers(powersOf10End, powersOf10Start);
+    this.enforcePowerLimits();
+    this.powersOf10Range  = powersRange(powersOf10End, powersOf10Start);
+    
+    // Expanded versions. I.e. evaluation of "10 to the power of ____"
+    this.potStart         = expandPot(this.powersOf10Start);
+    this.potEnd           = expandPot(this.powersOf10End);
+    this.potCurr          = this.potStart; // First run starts with sets of this size
+    
+    // Number of times each Bloom Filter will reject Test Set objects, because an object is not in The Data Set
     this.myFailRate       = inFailRate;
     this.myFRate          = inFailRate / (double)100;
     
-    this.TestSet          = new Vector<JTheDataSetObject>();
+    // Initialize the stacks that will hold each set of objects.
+    this.TheDataSet       = new Stack<JTheDataSetObject>();
+    this.TestSet          = new Stack<JTheDataSetObject>();
     
+    // Instantiate objects for console input/output
     this.ot     = new PrintStream(System.out);
     this.n      = new Scanner(System.in);
     this.trash = "";
     
+    
+    /**
+     * All done constructing this particular instance/instantiation of a JTestBench object.
+     * @note It is valid.
+     */
     this.isValid          = true;
   }
   
+  /**
+   * @param inPot: A Power of 10 to expand
+   * @return (int) The numer 10 raised to inPot
+   */
+  private int expandPot(int inPot)
+  {
+    int outPot = 1;
+    for (int j = 0; j < inPot; j++)
+    {
+      outPot *= 10;
+    }
+    return outPot;
+  }
+
   /**
    * @return
    */
@@ -273,15 +320,25 @@ public class JTestBench
   
   private void doCreate()
   {
+    Random  rng         = new Random(this.mySeed); // Initialize Random from the seed, for same data in ALL sets of a JTechBench object
+    
+    int     sizeSet     = potCurr; // Size of sets to make TODO: run once per power of 10 up to powerOf10End
+    
+    double  fPosRate    = SANGUPTA_BLOOM_FALSE_POSITIVE_RATE; // False positivity rate in a Sangupta Bloom Filter
+    int     bitsPerObj  = LOVASOA_BLOOM_BITS_PER_OBJECT; // Number of bits per object in a Lovasoa Bloom Filter
+    int     sizeLBloom  = sizeSet * bitsPerObj;         // Size passed into Lovasoa Bloom Filters
+    
+    
+    long numBads  = 0; // Keep count of number of Bad entries, i.e. number of objects in Test Set NOT IN The Data Set  
+    long numFails = 0; // Keep count of number of misses in the Skip List for objects not found
+        
+    JTheDataSetObject tmpO = null; // Temporary data set object for creating all the various sets
+    lovaBloom
+    
     switch (myBenchSet)
     {
       case LBloomGARSLP2:
       {
-        int sizeSet = 1;
-        int sizeBloom = 16;
-        long numRands = 0;
-        Random rng = new Random (this.mySeed);
-        JTheDataSetObject tmpP = null;
         for (int i = 0; i < powersOf10Start; i++)
         {
           sizeSet *= 10;
@@ -298,7 +355,7 @@ public class JTestBench
           sL.add(tmpP);                                       // Add it to the Skip List
           if (randFail(rng, myFRate)) // Add it to Test Set (unless randomly fails)
           {
-            TestSet.add(JTheDataSetObject.makeBad());
+            TestSet.add(JTheDataSetObject.makeBad(rng));
             //ot.println("Random");
             numRands++;
           }
@@ -306,6 +363,10 @@ public class JTestBench
           {
             TestSet.add(tmpP);
           }
+        }
+        for (int x = 0; x < TestSet.size(); x++)
+        {
+          ot.println(TestSet.at(x).toString());
         }
         ot.println("Number of Randoms in (Lovasoa) Test Set:             " + numRands);
 
@@ -347,6 +408,7 @@ public class JTestBench
           {
             TestSet.add(tmpP);
           }
+          tmpP = null;
         }
         ot.println("Number of Randoms in (Sangupta) Test Set:             " + numRands);
 

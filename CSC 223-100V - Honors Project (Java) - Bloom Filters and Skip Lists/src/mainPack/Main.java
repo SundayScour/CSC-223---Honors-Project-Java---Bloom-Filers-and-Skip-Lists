@@ -33,8 +33,8 @@ public class Main
     long seed = 0;
     String trash = "";
     boolean goodSeed = false;
-    byte strt;
-    byte nd;
+    int strt;
+    int nd;
 
     
     JTestBench b1;
@@ -66,8 +66,8 @@ public class Main
     
 //    testRandFail(seed, o);
     
-    strt  = (byte)1;
-    nd    = (byte)1;
+    strt  = 2;
+    nd    = 2;
     b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 7);
     b1.startup();
     
