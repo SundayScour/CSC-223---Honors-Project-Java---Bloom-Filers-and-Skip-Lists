@@ -130,6 +130,7 @@ public class JTestBench
   public static final int     MAX_POWER = 8;  // No more than 10**8 = 100_000_000 Objects in a set
   public static final double  SANGUPTA_BLOOM_FALSE_POSITIVE_RATE = 0.01; // Rate of false positives in Sangupta Bloom Filter
   public static final int     LOVASOA_BLOOM_BITS_PER_OBJECT = 8;    // Number of bits per object to allocate for the Lovasoa Bloom Filter
+  public static final int     MOD_SET_PERCENT_OF_TEST_SET = 10;
   /**
    * This is the conversion factor to make it easier to read
    * 
@@ -246,17 +247,21 @@ public class JTestBench
    *       implementation object instantiations to facilitate
    *       double-checking the imported implementations as to
    *       whether I am using them properly.
-   * @Note Implemented as a Java Collection Stack
+   * @Note Implemented as a Java Collection Vector
    */
-  Stack<JTheDataSetObject>                TheDataSet;
+  Vector<JTheDataSetObject>                TheDataSet;
   /**
    * Test Set for this Bench
    * 
    * @Note Implemented as a Java Collection Stack
    */
-  Stack<JTheDataSetObject>                TestSet; 
+  Vector<JTheDataSetObject>                TestSet;
   /**
-   * Temporary data set object for creating all the various sets
+   * Modifications set
+   */
+  Vector<JTheDataSetObject>                 ModSet;
+  /**
+   * Temporary data set object for creation and verification in all the various sets
    */
   JTheDataSetObject tmpObj; 
   /**
@@ -420,18 +425,9 @@ public class JTestBench
     this.myFRate          = inFailRate / (double)100;
     
     // Initialize the stacks that will hold each set of objects.
-    this.TheDataSet       = new Stack<JTheDataSetObject>();
-    this.TestSet          = new Stack<JTheDataSetObject>();
-    
-//    if (myBloom == JBloomType.Sangupta)
-//    {
-//      this.sangBloom = new InMemoryBloomFilter<JTheDataSetObject>(sizeSet, fPosRate);
-//    }
-//    else
-//    {
-//      this.lovaBloom = new LovaBloomFilter(sizeSet, sizeLBloom);
-//    }
-
+    this.TheDataSet       = new Vector<JTheDataSetObject>();
+    this.TestSet          = new Vector<JTheDataSetObject>();
+    this.ModSet           = new Vector<JTheDataSetObject>();
     
     // Instantiate objects for console input/output
     this.ot     = new PrintStream(System.out);
@@ -517,30 +513,19 @@ public class JTestBench
     this.fPosRate    = SANGUPTA_BLOOM_FALSE_POSITIVE_RATE; // False positivity rate in a Sangupta Bloom Filter
     this.bitsPerObj  = LOVASOA_BLOOM_BITS_PER_OBJECT; // Number of bits per object in a Lovasoa Bloom Filter
     this.sizeLBloom  = sizeSet * bitsPerObj;         // Size passed into Lovasoa Bloom Filters
-
-    
     
     /**
-     * Time the Creation of the data sets.
+     * Creation of the data sets.
      */
-    this.timeCreateStart  = this.getBeanCount();
     this.doCreate();
-    this.timeCreateEnd    = this.getBeanCount();
-    
     /**
-     * Time the Verification of the data sets.
+     * Verification of the data sets.
      */
-    this.timeVerifyStart  = this.getBeanCount();
     this.doVerify();
-    this.timeVerifyEnd    = this.getBeanCount();
-    
     /**
-     * Time the Modification of the data sets.
+     * Modification of the data sets.
      */
-    this.timeModifyStart  = this.getBeanCount();
     this.doModify();
-    this.timeModifyEnd    = this.getBeanCount();
-    
     /**
      * Shut it down and output the results
      */
@@ -582,10 +567,49 @@ public class JTestBench
     }
   }
   /**
+   * Abstracted way to check if object o is in the Bloom used by this bench.
+   * 
+   * @param o - The object whose inclusion in the filter is to be checked 
+   * @return (boolean) outBool - Whether object o is in the Bloom
+   */
+  private boolean checkInBloom (JTheDataSetObject o)
+  {
+    boolean outBool = false;
+    try
+    {
+      switch (myBloom)
+      {
+        case Lovasoa:   {outBool = lovaBloom.contains(o); break;}
+        case Sangupta:  {outBool = sangBloom.contains(o); break;}
+      }
+    }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+    }
+    return outBool;
+  }
+  private String getBloomType()
+  {
+    String outStr = "";
+    switch (myBloom)
+    {
+      case Lovasoa:   {outStr = " Lovasoa"; break;}
+      case Sangupta:  {outStr = "Sangupta"; break;}
+    }
+    return outStr;
+  }
+  /**
    * Create this JTestBench run's data sets.
    */
   private void doCreate()
   {
+    ot.println();
+    ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
+    ot.println("Bloom type: " + getBloomType());
+    ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
+    ot.println();
+    
     numBads  = 0;
     int numGoods = 0;
     
@@ -619,6 +643,7 @@ public class JTestBench
      *        where Bloom Filters really shine, compared with R-Trees, in
      *        theory anyway.
      */
+    this.timeCreateStart  = this.getBeanCount();
     for (int k = 0; k < sizeSet; k++)
     {
       /* Make an object for the sets */
@@ -627,28 +652,29 @@ public class JTestBench
       doesItFail  = randFail(tbRng, myFailRate);
       
       /* Stick 'em where they belong */
-      TheDataSet.push(tmpObj);
+      TheDataSet.add(tmpObj);
       addToBloom(tmpObj);
       LP2Skip.add(tmpObj);
-      if (doesItFail)
+      if (!doesItFail)
       {
-        TestSet.push(tmpObjFail);
+        TestSet.add(tmpObjFail);
         numBads++;
       }
       else
       {
-        TestSet.push(tmpObj);
+        TestSet.add(tmpObj);
         numGoods++;
       }
       
       /* Clear out the temporaries */
       tmpObj      = null;
       tmpObjFail  = null;
-      
     }
+    this.timeCreateEnd    = this.getBeanCount();
     /* Diagnostic: Output the number of "Bad" objects */
-    ot.println(String.format("Number of \"Bad\" entries in Test Set:  % 4d", numBads));
-    ot.println(String.format("Number of \"Good\" entries in Test Set: % 4d", numGoods)); 
+    ot.println(String.format("Total number of objects in Test Set: % 6d", sizeSet));
+    ot.println(String.format("Number of \"Bad\" entries in Test Set:  % 6d", numBads));
+    ot.println(String.format("Number of \"Good\" entries in Test Set: % 6d", numGoods)); 
 
   }
 
@@ -662,11 +688,75 @@ public class JTestBench
    */
   private void doVerify()
   {
-    numFails = 0;
+    int numBloomFails = 0;
+    int numBloomPositives = 0;
+    int numSkipFails = 0;
+    int numSkipPositives = 0;
+    this.timeVerifyStart  = this.getBeanCount();
+    for (int k = 0; k < TestSet.size(); k++)
+    {
+      tmpObj = TestSet.elementAt(k);
+      if (checkInBloom(tmpObj))
+      {
+        numBloomPositives++;
+        if (LP2Skip.contains(tmpObj))
+        {
+          numSkipPositives++;
+        }
+        else
+        {
+          numSkipFails++;
+        }
+      }
+      else
+      {
+        numBloomFails++;
+      }
+    }
+    this.timeVerifyEnd    = this.getBeanCount();
+    ot.println();
+    ot.println("-------");
+    ot.println("Verify");
+    ot.println("-------");
+    ot.println(String.format("Bloom Fails: %1$ 6d, Bloom Hits: %2$ 6d", numBloomFails, numBloomPositives));
+    ot.println(String.format("Skip  Fails: %1$ 6d, Skip  Hits: %2$ 6d", numSkipFails, numSkipPositives));
+    ot.println("-------");
+    ot.println();
   }
 
   private void doModify()
   {
+    double modRate = (double)MOD_SET_PERCENT_OF_TEST_SET;
+    
+    // Populate the ModSet
+    for (int k = 0; k < TestSet.size(); k++)
+    {
+      if (!randFail(tbRng, modRate))
+      {
+        ModSet.add(TestSet.elementAt(k));
+      }
+    }
+    ot.println("Size of ModSet: " + ModSet.size());
+    
+    // Modify
+    this.timeModifyStart  = this.getBeanCount();
+    
+    int numAdded    = 0;
+    int numRemoved  = 0;
+    for (int k = 0; k < ModSet.size(); k++)
+    {
+      if (LP2Skip.contains(ModSet.elementAt(k)))
+      {
+        numAdded++;
+      }
+      else
+      {
+        numRemoved++;
+      }
+    }
+    ot.println(String.format("Number objects added:   % 6d", numAdded));
+    ot.println(String.format("Number objects removed: % 6d", numRemoved));
+    this.timeModifyEnd    = this.getBeanCount();    
   }
 
   /**
@@ -695,8 +785,10 @@ public class JTestBench
     ot.println("Creation time:     " + this.timeCreateTotal);
     ot.println("Verification time: " + this.timeVerifyTotal);
     ot.println("Modification time: " + this.timeModifyTotal);
-    
+    ot.println();
     ot.println("*******************************************************************************************");
+    ot.println();
+    ot.println();
   }
   /**
    * A simple method to timestamp various points of this 

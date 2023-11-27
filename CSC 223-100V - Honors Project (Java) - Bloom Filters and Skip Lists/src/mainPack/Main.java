@@ -64,11 +64,13 @@ public class Main
       }
     }
     
-//    testRandFail(seed, o);
+    testRandFail(seed, o, 25);
     
-    strt  = 3;
-    nd    = 3;
-    b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 7);
+    myPause();
+    
+    strt  = 5;
+    nd    = 5;
+    b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 25);
     b1.startup();
     
     myPause();
@@ -90,7 +92,7 @@ public class Main
          {}  
   }
   
-  private static void testRandFail(long seed, PrintStream o)
+  private static void testRandFail(long seed, PrintStream o, double failRate)
   {
     Random rng = new Random(seed);
     boolean tf;
@@ -100,7 +102,7 @@ public class Main
     int failCount = 0;
     for (int k = 0; k < numRuns; k++)
     {
-      tf = JTestBench.randFail(rng, 7.1);
+      tf = JTestBench.randFail(rng, failRate);
       if (!tf) {failCount++;}
       //o.println(tf);
     }
