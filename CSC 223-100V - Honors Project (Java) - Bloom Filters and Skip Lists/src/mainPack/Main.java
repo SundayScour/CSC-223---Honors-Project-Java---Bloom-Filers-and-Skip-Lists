@@ -69,8 +69,8 @@ public class Main
     
     myPause();
     
-    strt  = 5;
-    nd    = 5;
+    strt  = 2;
+    nd    = 2;
     b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 25);
     b1.startup();
     
@@ -81,7 +81,7 @@ public class Main
     
     myPause();
     
-    b3 = new JTestBench(seed, JBloomType.R_Tree, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 25);
+    b3 = new JTestBench(seed, JBloomType.R_Tree, JGridSysType.GARS, JSkipListType.LP2, 2, 2, 25);
     b3.startup();
     
     i.close();

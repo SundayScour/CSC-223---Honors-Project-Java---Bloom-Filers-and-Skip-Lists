@@ -602,6 +602,7 @@ public class JTestBench
           double[] min = {-90.0, -180.0, 0.0};
           double[] max = { 90.0,  180.0, 999_999.0};
           outBool = RTree.contains(min, max, o.getMyPay());
+          outBool = RTree.contains(min, max, o.getMyPay());
         }
       }
     }
@@ -851,6 +852,22 @@ public class JTestBench
     this.timeCreateTotal = calcCreateTime();
     this.timeVerifyTotal = calcVerifyTime();
     this.timeModifyTotal = calcModifyTime();
+    
+    switch(myBloom)
+    {
+      case Lovasoa:
+      {
+        ot.println(lovaBloom.toString());
+      }
+      case Sangupta:
+      {
+        ot.println(sangBloom.toString());
+      }
+      case R_Tree:
+      {
+        ot.println(RTree.toStringTree());
+      }
+    }
     
     this.outResults();
   }
