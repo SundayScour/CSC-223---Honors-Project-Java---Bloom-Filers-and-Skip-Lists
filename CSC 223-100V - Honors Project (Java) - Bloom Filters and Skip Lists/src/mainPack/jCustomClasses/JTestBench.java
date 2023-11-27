@@ -526,7 +526,14 @@ public class JTestBench
     /**
      * Verification of the data sets.
      */
-    this.doVerify();
+    if (myBloom == JBloomType.R_Tree)
+    {
+      this.doRTreeVerify();
+    }
+    else
+    {
+      this.doVerify();
+    }
     /**
      * Modification of the data sets.
      */
@@ -636,8 +643,9 @@ public class JTestBench
      * 
      * @Note Construct and initialize the correct Bloom Filter, based on (JBloomType) myBloom. 
      */
-    if (this.myBloom == JBloomType.Sangupta)  {this.sangBloom = new InMemoryBloomFilter<JTheDataSetObject>(sizeSet, fPosRate);}
-    else                                      {this.lovaBloom = new LovaBloomFilter(sizeSet, sizeLBloom);}
+    if      (this.myBloom == JBloomType.Sangupta) {this.sangBloom = new InMemoryBloomFilter<JTheDataSetObject>(sizeSet, fPosRate);}
+    else if (this.myBloom == JBloomType.Lovasoa)  {this.lovaBloom = new LovaBloomFilter(sizeSet, sizeLBloom);}
+    else if (this.myBloom == JBloomType.R_Tree)   {this.RTree     = importedImplementations.TinSpinIndexes.index.rtree.RTree.createRStar(3);}
     
     /**
      * Create a Skip List to contain The Data Set
@@ -738,14 +746,45 @@ public class JTestBench
     }
     this.timeVerifyEnd    = this.getBeanCount();
     ot.println();
-//    ot.println("-------");
-//    ot.println("Verify");
-//    ot.println("-------");
     ot.println(String.format("Bloom Fails: %1$ 6d, Bloom Hits: %2$ 6d", numBloomFails, numBloomPositives));
     ot.println(String.format("Skip  Fails: %1$ 6d, Skip  Hits: %2$ 6d", numSkipFails, numSkipPositives));
-//    ot.println("-------");
+  }
+  /**
+   * Verify which objects in Test Set are also in The Data Set
+   * 
+   * @Note The Data Set has two copies:
+   *       The Bloom Filters and Skip List I am testing, and the
+   *       Stack TheDataSet as a fool-proof backup for what 
+   *       SHOULD be in the Skip List (and Bloom Filter).
+   */
+  private void doRTreeVerify()
+  {
+    ot.println();
+    ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
+    ot.println("      VERIFICATION     ");
+    ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
+
+    int numRTreeFails = 0;
+    int numRTreeHits = 0;
+    this.timeVerifyStart  = this.getBeanCount();
+    for (int k = 0; k < TestSet.size(); k++)
+    {
+      tmpObj = TestSet.elementAt(k);
+      if (checkInBloom(tmpObj))
+      {
+        numRTreeHits++;
+      }
+      else
+      {
+        numRTreeFails++;
+      }
+    }
+    this.timeVerifyEnd    = this.getBeanCount();
+    ot.println();
+    ot.println(String.format("Bloom Fails: %1$ 6d, Bloom Hits: %2$ 6d", numRTreeFails, numRTreeHits));
   }
 
+  
   private void doModify()
   {
     ot.println();
