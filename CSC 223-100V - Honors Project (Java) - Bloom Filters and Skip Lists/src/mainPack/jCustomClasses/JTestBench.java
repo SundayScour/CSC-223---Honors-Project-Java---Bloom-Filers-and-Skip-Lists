@@ -690,6 +690,7 @@ public class JTestBench
    */
   private void doVerify()
   {
+    ot.println();
     ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
     ot.println("      VERIFICATION     ");
     ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
@@ -726,15 +727,16 @@ public class JTestBench
 //    ot.println("-------");
     ot.println(String.format("Bloom Fails: %1$ 6d, Bloom Hits: %2$ 6d", numBloomFails, numBloomPositives));
     ot.println(String.format("Skip  Fails: %1$ 6d, Skip  Hits: %2$ 6d", numSkipFails, numSkipPositives));
-    ot.println("-------");
-    ot.println();
+//    ot.println("-------");
   }
 
   private void doModify()
   {
+    ot.println();
     ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
     ot.println("     Modification      ");
     ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
+    ot.println();
 
     double modRate = (double)MOD_SET_PERCENT_OF_TEST_SET;
     
@@ -785,6 +787,12 @@ public class JTestBench
    */
   private void shutdown()
   {
+    ot.println();
+    ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
+    ot.println("        Results        ");
+    ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
+    ot.println();
+    
     this.timeCreateTotal = calcCreateTime();
     this.timeVerifyTotal = calcVerifyTime();
     this.timeModifyTotal = calcModifyTime();

@@ -68,8 +68,8 @@ public class Main
     
     myPause();
     
-    strt  = 6;
-    nd    = 6;
+    strt  = 5;
+    nd    = 5;
     b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 25);
     b1.startup();
     
