@@ -353,14 +353,14 @@ public class JTheDataSetObject implements Comparable<JTheDataSetObject>
   @Override
   public String toString()
   {
-    return ("" + "Pay: " + myPay + " --- " + "Valid: " + isValid);
-    /*
+//    return ("" + "Pay: " + myPay + " --- " + "Valid: " + isValid);
+    
 
     return "JTheDataSetObject [myLat=" + myLat + ", myLon=" + myLon + ", myAlt="
         + myAlt + ", myGARS=" + myGARS + ", myMGRS=" + myMGRS + ", myPay="
         + myPay + ", myHashType=" + myHashType + ", isValid=" + isValid + "]";
         
-    */
+    
   }
   
   public RTreeEntry<String> toRTreePoint()

@@ -599,10 +599,12 @@ public class JTestBench
         case Sangupta:  {outBool = sangBloom.contains(o); break;}
         case R_Tree:
         {
-          double[] min = {-90.0, -180.0, 0.0};
-          double[] max = { 90.0,  180.0, 999_999.0};
+          double[] min = {o.getMyLat(), o.getMyLon(), (double)o.getMyAlt()};
+          double[] max = {o.getMyLat(), o.getMyLon(), (double)o.getMyAlt()};
+//          outBool = RTree.contains(min, max, o.getMyPay());
           outBool = RTree.contains(min, max, o.getMyPay());
-          outBool = RTree.contains(min, max, o.getMyPay());
+//          ot.println(""+outBool+" = "+o.getMyLat()+" "+o.getMyLon()+" "+o.getMyAlt());
+          break;
         }
       }
     }
@@ -857,15 +859,18 @@ public class JTestBench
     {
       case Lovasoa:
       {
-        ot.println(lovaBloom.toString());
+//        LP2Skip.printList();
+        break;
       }
       case Sangupta:
       {
-        ot.println(sangBloom.toString());
+//        LP2Skip.printList();
+        break;
       }
       case R_Tree:
       {
-        ot.println(RTree.toStringTree());
+//        ot.println(RTree.toStringTree());
+        break;
       }
     }
     
