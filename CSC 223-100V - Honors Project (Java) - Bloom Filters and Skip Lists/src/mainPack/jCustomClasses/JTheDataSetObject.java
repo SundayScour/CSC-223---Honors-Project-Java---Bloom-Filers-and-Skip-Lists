@@ -20,7 +20,9 @@ import importedImplementations.GARS.LLtoGARS;
 import importedImplementations.GARS.GARStoLL;
 import importedImplementations.NGA_MGRS.mgrs.MGRS;
 import importedImplementations.NGA_MGRS.mgrs.mil.nga.grid.features.Point;
-
+import importedImplementations.TinSpinIndexes.index.PointMap;
+import importedImplementations.TinSpinIndexes.index.rtree.RTreeEntry;
+import importedImplementations.TinSpinIndexes.index.util.PointMapWrapper;
 import mainPack.jCustomClasses.*;
 
 /**
@@ -42,6 +44,8 @@ public class JTheDataSetObject implements Comparable<JTheDataSetObject>
   public static final int     MIN_ALT =        0;
   public static final int     MAX_ALT =  999_999; // 0 to 999 Kilometers
   public static final int     RNG_ALT = MAX_ALT - MIN_ALT;
+  
+  
   
   /**
    * The object's Latitude, in decimal degrees.
@@ -357,6 +361,20 @@ public class JTheDataSetObject implements Comparable<JTheDataSetObject>
         + myPay + ", myHashType=" + myHashType + ", isValid=" + isValid + "]";
         
     */
+  }
+  
+  public RTreeEntry<String> toRTreePoint()
+  {
+    double alt = (double)this.myAlt;
+    double myEntry[] = {this.myLat, this.myLon, alt};
+//    return importedImplementations.TinSpinIndexes.index.rtree.RTreeEntry.createPoint(myEntry, null);
+    return importedImplementations.TinSpinIndexes.index.rtree.RTreeEntry.createPoint(myEntry, myPay);
+    
+    
+//    return importedImplementations.TinSpinIndexes.index.rtree.RTreeEntry.createPoint(myEntry, <double[]>);
+//    return importedImplementations.TinSpinIndexes.index.rtree.RTreeEntry.createPoint(myEntry, <double[]>);
+//    return importedImplementations.TinSpinIndexes.index.rtree.RTreeEntry.createPoint(myEntry, <double[]>);
+//    return importedImplementations.TinSpinIndexes.index.rtree.RTreeEntry.createPoint(myEntry, <double[]>);
   }
 
 

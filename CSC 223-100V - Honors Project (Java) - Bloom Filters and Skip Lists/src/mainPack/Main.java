@@ -39,6 +39,7 @@ public class Main
     
     JTestBench b1;
     JTestBench b2;
+    JTestBench b3;
     while (!goodSeed)
     {
       try
@@ -68,8 +69,8 @@ public class Main
     
     myPause();
     
-    strt  = 6;
-    nd    = 6;
+    strt  = 5;
+    nd    = 5;
     b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 25);
     b1.startup();
     
@@ -77,6 +78,11 @@ public class Main
     
     b2 = new JTestBench(seed, JBloomType.Sangupta, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 25);
     b2.startup();
+    
+    myPause();
+    
+    b3 = new JTestBench(seed, JBloomType.R_Tree, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 25);
+    b3.startup();
     
     i.close();
     o.close();

@@ -20,5 +20,6 @@ package mainPack.jCustomClasses;
 public enum JBloomType
 {
   Lovasoa,
-  Sangupta
+  Sangupta,
+  R_Tree,
 }

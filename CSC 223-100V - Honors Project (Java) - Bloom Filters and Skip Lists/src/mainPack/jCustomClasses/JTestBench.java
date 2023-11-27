@@ -294,6 +294,11 @@ public class JTestBench
    */
   SkipList<JTheDataSetObject>             LP2Skip;
   /**
+   * R-Tree for this Bench.
+   */
+//  RTree<JTheDataSetObject>                RTree;
+  RTree<String>                RTree;
+  /**
    * A short alias for console output.
    */
   PrintStream ot;
@@ -559,6 +564,10 @@ public class JTestBench
       {
         case Lovasoa:   {this.lovaBloom.add(o); break;}
         case Sangupta:  {this.sangBloom.add(o); break;}
+        case R_Tree:
+        {
+          RTree.insert(o.toRTreePoint());
+        }
       }
     } catch (Exception e)
     {
@@ -581,6 +590,12 @@ public class JTestBench
       {
         case Lovasoa:   {outBool = lovaBloom.contains(o); break;}
         case Sangupta:  {outBool = sangBloom.contains(o); break;}
+        case R_Tree:
+        {
+          double[] min = {-90.0, -180.0, 0.0};
+          double[] max = { 90.0,  180.0, 999_999.0};
+          outBool = RTree.contains(min, max, o.getMyPay());
+        }
       }
     }
     catch (Exception e)
@@ -596,6 +611,7 @@ public class JTestBench
     {
       case Lovasoa:   {outStr = " Lovasoa"; break;}
       case Sangupta:  {outStr = "Sangupta"; break;}
+      case R_Tree:    {outStr = "  R-Tree"; break;}
     }
     return outStr;
   }
@@ -690,6 +706,7 @@ public class JTestBench
    */
   private void doVerify()
   {
+    ot.println();
     ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
     ot.println("      VERIFICATION     ");
     ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
@@ -726,15 +743,16 @@ public class JTestBench
 //    ot.println("-------");
     ot.println(String.format("Bloom Fails: %1$ 6d, Bloom Hits: %2$ 6d", numBloomFails, numBloomPositives));
     ot.println(String.format("Skip  Fails: %1$ 6d, Skip  Hits: %2$ 6d", numSkipFails, numSkipPositives));
-    ot.println("-------");
-    ot.println();
+//    ot.println("-------");
   }
 
   private void doModify()
   {
+    ot.println();
     ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
     ot.println("     Modification      ");
     ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
+    ot.println();
 
     double modRate = (double)MOD_SET_PERCENT_OF_TEST_SET;
     
@@ -785,6 +803,12 @@ public class JTestBench
    */
   private void shutdown()
   {
+    ot.println();
+    ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
+    ot.println("        Results        ");
+    ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
+    ot.println();
+    
     this.timeCreateTotal = calcCreateTime();
     this.timeVerifyTotal = calcVerifyTime();
     this.timeModifyTotal = calcModifyTime();
