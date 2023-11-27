@@ -130,7 +130,7 @@ public class JTestBench
   public static final int     MAX_POWER = 8;  // No more than 10**8 = 100_000_000 Objects in a set
   public static final double  SANGUPTA_BLOOM_FALSE_POSITIVE_RATE = 0.01; // Rate of false positives in Sangupta Bloom Filter
   public static final int     LOVASOA_BLOOM_BITS_PER_OBJECT = 8;    // Number of bits per object to allocate for the Lovasoa Bloom Filter
-  public static final int     MOD_SET_PERCENT_OF_TEST_SET = 10;
+  public static final int     MOD_SET_PERCENT_OF_TEST_SET = 15;
   /**
    * This is the conversion factor to make it easier to read
    * 
@@ -140,8 +140,8 @@ public class JTestBench
    * 1_000_000_000 converts times to      seconds output
    */ 
 //  public static final int     DURATION_TIMESCALE_QUOTIENT =             1;
-  public static final int     DURATION_TIMESCALE_QUOTIENT =         1_000;
-//  public static final int     DURATION_TIMESCALE_QUOTIENT =     1_000_000;
+//  public static final int     DURATION_TIMESCALE_QUOTIENT =         1_000;
+  public static final int     DURATION_TIMESCALE_QUOTIENT =     1_000_000;
 //  public static final int     DURATION_TIMESCALE_QUOTIENT = 1_000_000_000;
   /**
    * Is this a valid instance of JTestBench?
@@ -604,11 +604,13 @@ public class JTestBench
    */
   private void doCreate()
   {
+    ot.println("*******************************************************************************************");
     ot.println();
     ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
+    ot.println("        CREATION       ");
+    ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
+    ot.println();
     ot.println("Bloom type: " + getBloomType());
-    ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
-    ot.println();
     
     numBads  = 0;
     int numGoods = 0;
@@ -688,6 +690,10 @@ public class JTestBench
    */
   private void doVerify()
   {
+    ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
+    ot.println("      VERIFICATION     ");
+    ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
+
     int numBloomFails = 0;
     int numBloomPositives = 0;
     int numSkipFails = 0;
@@ -715,9 +721,9 @@ public class JTestBench
     }
     this.timeVerifyEnd    = this.getBeanCount();
     ot.println();
-    ot.println("-------");
-    ot.println("Verify");
-    ot.println("-------");
+//    ot.println("-------");
+//    ot.println("Verify");
+//    ot.println("-------");
     ot.println(String.format("Bloom Fails: %1$ 6d, Bloom Hits: %2$ 6d", numBloomFails, numBloomPositives));
     ot.println(String.format("Skip  Fails: %1$ 6d, Skip  Hits: %2$ 6d", numSkipFails, numSkipPositives));
     ot.println("-------");
@@ -726,6 +732,10 @@ public class JTestBench
 
   private void doModify()
   {
+    ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
+    ot.println("     Modification      ");
+    ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
+
     double modRate = (double)MOD_SET_PERCENT_OF_TEST_SET;
     
     // Populate the ModSet
@@ -745,17 +755,24 @@ public class JTestBench
     int numRemoved  = 0;
     for (int k = 0; k < ModSet.size(); k++)
     {
-      if (LP2Skip.contains(ModSet.elementAt(k)))
+      if (!LP2Skip.contains(ModSet.elementAt(k)))
       {
         numAdded++;
+        LP2Skip.add(ModSet.elementAt(k));
       }
       else
       {
         numRemoved++;
+        LP2Skip.remove(ModSet.elementAt(k));
       }
     }
+    ot.println();
+    ot.println("----*----*----");
     ot.println(String.format("Number objects added:   % 6d", numAdded));
     ot.println(String.format("Number objects removed: % 6d", numRemoved));
+    ot.println("----*----*----");
+    ot.println();
+    
     this.timeModifyEnd    = this.getBeanCount();    
   }
 
@@ -781,12 +798,23 @@ public class JTestBench
    */
   private void outResults()
   {
+    String timeString = "";
     
-    ot.println("Creation time:     " + this.timeCreateTotal);
-    ot.println("Verification time: " + this.timeVerifyTotal);
-    ot.println("Modification time: " + this.timeModifyTotal);
+    int x = DURATION_TIMESCALE_QUOTIENT;
+    if      (x ==             1) {timeString = " (nanoseconds)";}
+    else if (x ==         1_000) {timeString = " (microseconds)";}
+    else if (x ==     1_000_000) {timeString = " (miliseconds)";}
+    else if (x == 1_000_000_000) {timeString = " (seconds)";}
+
+    ot.println(String.format("Creation time:     %1$ 8d", this.timeCreateTotal) + timeString);
+    ot.println(String.format("Verification time: %1$ 8d", this.timeVerifyTotal) + timeString);
+    ot.println(String.format("Modification time: %1$ 8d", this.timeModifyTotal) + timeString);
     ot.println();
     ot.println("*******************************************************************************************");
+    ot.println();
+    ot.println();
+    ot.println();
+    ot.println();
     ot.println();
     ot.println();
   }
