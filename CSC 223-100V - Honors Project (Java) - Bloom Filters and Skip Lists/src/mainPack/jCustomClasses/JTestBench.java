@@ -235,30 +235,29 @@ public class JTestBench
    * Which type (i.e. which imported implementation) of
    * Bloom Filter to use
    * 
-   * @Note JBloomTypes are:
-   *       .Lovasoa
-   *       and
-   *       .Sangupta
+   * @Note JBloomTypes are: 
+   *        .Lovasoa 
+   *        .Sangupta
+   *        .R_Tree
    */
   private JBloomType    myBloom     = JBloomType.Lovasoa;
   /**
    * Which type (i.e. which imported implementation) of
-   * Bloom Filter to use
+   * grid system to use
    * 
-   * @Note JBloomTypes are:
-   *       .Lovasoa
-   *       and
-   *       .Sangupta
+   * @Note JGridSysTypes are:
+   *        .GARS
+   *        .MGRS
    */  
   private JGridSysType  myGrid      = JGridSysType.GARS;
   /**
    * Which type (i.e. which imported implementation) of
-   * Bloom Filter to use
+   * Skip List to use
    * 
-   * @Note JBloomTypes are:
-   *       .Lovasoa
-   *       and
-   *       .Sangupta
+   * @Note JSkipListTypes are:
+   *        .LP2
+   *        .myImpl (Type "My Implementation" is not used)
+   *        
    */
   private JSkipListType mySkip      = JSkipListType.LP2;
   /**
@@ -295,7 +294,7 @@ public class JTestBench
    * 
    * @Note ...as an int...
    */
-  private int           myFailRate; // ...as an int...
+  private int           myIntFailRate; // ...as an int...
   /**
    * Percentage of The Data Set objects that will NOT Test Set...
    * 
@@ -326,13 +325,13 @@ public class JTestBench
   /**
    * A short alias for console input.
    */
-  Scanner     n;
-  /**
-   * A temporary String used for processing input.
-   * 
-   * @Note Used only by (PrintStream) n to discard bad input
-   */
-  String      trash;
+//  Scanner     n;
+//  /**
+//   * A temporary String used for processing input.
+//   * 
+//   * @Note Used only by (PrintStream) n to discard bad input
+//   */
+//  String      trash;
 //  /**
 //   * Lower end of sizeTest for this series of runs.
 //   * 
@@ -426,7 +425,7 @@ public class JTestBench
    * @param inEndPowerOf10 (int) Ending (i.e. the largest) size, in power of 10, of The Data Set and Test Set during the Test Bench run
    */
   public JTestBench (long inSeed, JBloomType inBloomType, JGridSysType inGridSysType, JSkipListType inSkipListType, 
-      int inStartPower, int inEndPower, int inFailRate)
+      int inSize, int inFailRate)
   {
     this.mySeed           = inSeed;
     this.myBenchBean      = ManagementFactory.getThreadMXBean(); // Get ready to do some "bean counting", i.e. get CPU times
@@ -435,53 +434,25 @@ public class JTestBench
     this.myBloom          = inBloomType;
     this.myGrid           = inGridSysType;
     this.mySkip           = inSkipListType;
-    
-//    // Powers of 10 for the sizes of the sets
-//    this.powersOf10Start  = inStartPower;
-//    this.powersOf10End    = inEndPower;
-//    this.enforcePowerLimits();
-//    this.powersOf10Range  = powersRange(powersOf10End, powersOf10Start);
-//    
-//    // Expanded versions. I.e. evaluation of "10 to the power of ____"
-//    this.potStart         = expandPot(this.powersOf10Start);
-//    this.potEnd           = expandPot(this.powersOf10End);
-//    this.potCurr          = this.potStart; // First run starts with sets of this size
-    
+    this.sizeSet          = inSize;
+
     // Number of times each Bloom Filter will reject Test Set objects, because an object is not in The Data Set
-    this.myFailRate       = inFailRate;
+    this.myIntFailRate    = inFailRate;
     this.myFRate          = inFailRate / (double)100;
     
-    // Initialize the stacks that will hold each set of objects.
+    // Initialize the Vectors that will hold each set of objects.
     this.TheDataSet       = new Vector<JTheDataSetObject>();
     this.TestSet          = new Vector<JTheDataSetObject>();
     this.ModSet           = new Vector<JTheDataSetObject>();
     
-    // Instantiate objects for console input/output
-    this.ot     = new PrintStream(System.out);
-    this.n      = new Scanner(System.in);
-    this.trash = "";
+    // Instantiate object for console output
+    this.ot               = new PrintStream(System.out);
     
     /*
      * All done constructing this particular instance/instantiation of a JTestBench object.
      * It is valid.
      */
     this.isValid          = true;
-  }
-  /**
-   * Expands fields given as powers of 10
-   * 
-   * @param inPot The Power of 10 to expand
-   * @return (int) The numer 10 raised to inPot
-   * @Note Called by JTestBench constructor
-   */
-  private int expandPot(int inPot)
-  {
-    int outPot = 1;
-    for (int j = 0; j < inPot; j++)
-    {
-      outPot *= 10;
-    }
-    return outPot;
   }
   /**
    * Is this a valid construction of a JTestBench?
@@ -536,7 +507,6 @@ public class JTestBench
      * Initialize the Random for this JTestBench instance
      */
     this.tbRng    = new Random(mySeed); // Initialize Random from the seed, for same data in ALL sets of a JTechBench object
-//    this.sizeSet  = potCurr; // Size of sets to make TODO: run once per power of 10 up to powerOf10End
     this.fPosRate    = SANGUPTA_BLOOM_FALSE_POSITIVE_RATE; // False positivity rate in a Sangupta Bloom Filter
     this.bitsPerObj  = LOVASOA_BLOOM_BITS_PER_OBJECT; // Number of bits per object in a Lovasoa Bloom Filter
     this.sizeLBloom  = sizeSet * bitsPerObj;         // Size passed into Lovasoa Bloom Filters
@@ -548,14 +518,7 @@ public class JTestBench
     /**
      * Verification of the data sets.
      */
-    if (myBloom == JBloomType.R_Tree)
-    {
-      this.doRTreeVerify();
-    }
-    else
-    {
-      this.doVerify();
-    }
+    this.doVerify();
     /**
      * Modification of the data sets.
      */
@@ -603,49 +566,6 @@ public class JTestBench
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-  }
-  /**
-   * Abstracted way to check if object o is in the Bloom used by this bench.
-   * 
-   * @param o - The object whose inclusion in the filter is to be checked 
-   * @return (boolean) outBool - Whether object o is in the Bloom
-   */
-  private boolean checkInBloom (JTheDataSetObject o)
-  {
-    boolean outBool = false;
-    try
-    {
-      switch (myBloom)
-      {
-        case Lovasoa:   {outBool = lovaBloom.contains(o); break;}
-        case Sangupta:  {outBool = sangBloom.contains(o); break;}
-        case R_Tree:
-        {
-          double[] min = {o.getMyLat(), o.getMyLon(), (double)o.getMyAlt()};
-          double[] max = {o.getMyLat(), o.getMyLon(), (double)o.getMyAlt()};
-//          outBool = RTree.contains(min, max, o.getMyPay());
-          outBool = RTree.contains(min, max, o.getMyPay());
-//          ot.println(""+outBool+" = "+o.getMyLat()+" "+o.getMyLon()+" "+o.getMyAlt());
-          break;
-        }
-      }
-    }
-    catch (Exception e)
-    {
-      e.printStackTrace();
-    }
-    return outBool;
-  }
-  private String getBloomType()
-  {
-    String outStr = "";
-    switch (myBloom)
-    {
-      case Lovasoa:   {outStr = " Lovasoa"; break;}
-      case Sangupta:  {outStr = "Sangupta"; break;}
-      case R_Tree:    {outStr = "  R-Tree"; break;}
-    }
-    return outStr;
   }
   /**
    * Create this JTestBench run's data sets.
@@ -700,7 +620,7 @@ public class JTestBench
       /* Make an object for the sets */
       tmpObj      = new JTheDataSetObject(gridToHashType(), tbRng);
       tmpObjFail  = new JTheDataSetObject(gridToHashType(), tbRng, true);
-      doesItFail  = randFail(tbRng, myFailRate);
+      doesItFail  = randFail(tbRng, myIntFailRate);
       
       /* Stick 'em where they belong */
       TheDataSet.add(tmpObj);
@@ -728,8 +648,23 @@ public class JTestBench
     ot.println(String.format("Number of \"Good\" entries in Test Set: % 6d", numGoods)); 
 
   }
-
   /**
+   * 
+   * @return a String containing the type of Bloom Filter used
+   */
+  private String getBloomType()
+  {
+    String outStr = "";
+    switch (myBloom)
+    {
+      case Lovasoa:   {outStr = " Lovasoa"; break;}
+      case Sangupta:  {outStr = "Sangupta"; break;}
+      case R_Tree:    {outStr = "  R-Tree"; break;}
+    }
+    return outStr;
+  }
+  /**
+   * The Verification phase of testing:
    * Verify which objects in Test Set are also in The Data Set
    * 
    * @Note The Data Set has two copies:
@@ -744,72 +679,74 @@ public class JTestBench
     ot.println("      VERIFICATION     ");
     ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
 
-    int numBloomFails = 0;
-    int numBloomPositives = 0;
-    int numSkipFails = 0;
-    int numSkipPositives = 0;
-    this.timeVerifyStart  = this.getBeanCount();
-    for (int k = 0; k < TestSet.size(); k++)
+    switch (myBloom)
     {
-      tmpObj = TestSet.elementAt(k);
-      if (checkInBloom(tmpObj))
+      case Lovasoa:
+      case Sangupta:
       {
-        numBloomPositives++;
-        if (LP2Skip.contains(tmpObj))
+      this.timeVerifyStart  = this.getBeanCount();
+      int numBloomFails = 0;
+      int numBloomPositives = 0;
+      int numSkipFails = 0;
+      int numSkipPositives = 0;
+      for (int k = 0; k < TestSet.size(); k++)
+      {
+        tmpObj = TestSet.elementAt(k);
+        if (checkInBloom(tmpObj))
         {
-          numSkipPositives++;
+          numBloomPositives++;
+          if (LP2Skip.contains(tmpObj))
+          {
+            numSkipPositives++;
+          }
+          else
+          {
+            numSkipFails++;
+          }
         }
         else
         {
-          numSkipFails++;
+          numBloomFails++;
         }
       }
-      else
+      this.timeVerifyEnd    = this.getBeanCount();
+      ot.println();
+      ot.println(String.format("Bloom Fails: %1$ 8d, Bloom Hits: %2$ 8d", numBloomFails, numBloomPositives));
+      ot.println(String.format("Skip  Fails: %1$ 8d, Skip  Hits: %2$ 8d", numSkipFails, numSkipPositives));
+      break;
+      }
+      case R_Tree:
       {
-        numBloomFails++;
+        int numRTreeFails = 0;
+        int numRTreeHits = 0;
+        this.timeVerifyStart  = this.getBeanCount();
+        for (int k = 0; k < TestSet.size(); k++)
+        {
+          tmpObj = TestSet.elementAt(k);
+          if (checkInBloom(tmpObj))
+          {
+            numRTreeHits++;
+          }
+          else
+          {
+            numRTreeFails++;
+          }
+        }
+        this.timeVerifyEnd    = this.getBeanCount();
+        ot.println();
+        ot.println(String.format("Bloom Fails: %1$ 8d, Bloom Hits: %2$ 8d", numRTreeFails, numRTreeHits));
       }
     }
-    this.timeVerifyEnd    = this.getBeanCount();
-    ot.println();
-    ot.println(String.format("Bloom Fails: %1$ 6d, Bloom Hits: %2$ 6d", numBloomFails, numBloomPositives));
-    ot.println(String.format("Skip  Fails: %1$ 6d, Skip  Hits: %2$ 6d", numSkipFails, numSkipPositives));
   }
   /**
+   * 
    * Verify which objects in Test Set are also in The Data Set
    * 
    * @Note The Data Set has two copies:
-   *       The Bloom Filters and Skip List I am testing, and the
-   *       Stack TheDataSet as a fool-proof backup for what 
-   *       SHOULD be in the Skip List (and Bloom Filter).
+   *        The Bloom Filters and Skip List I am testing, and the
+   *        Stack TheDataSet as a fool-proof backup for what 
+   *        SHOULD be in the Skip List (and Bloom Filter).
    */
-  private void doRTreeVerify()
-  {
-    ot.println();
-    ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
-    ot.println("      VERIFICATION     ");
-    ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
-
-    int numRTreeFails = 0;
-    int numRTreeHits = 0;
-    this.timeVerifyStart  = this.getBeanCount();
-    for (int k = 0; k < TestSet.size(); k++)
-    {
-      tmpObj = TestSet.elementAt(k);
-      if (checkInBloom(tmpObj))
-      {
-        numRTreeHits++;
-      }
-      else
-      {
-        numRTreeFails++;
-      }
-    }
-    this.timeVerifyEnd    = this.getBeanCount();
-    ot.println();
-    ot.println(String.format("Bloom Fails: %1$ 6d, Bloom Hits: %2$ 6d", numRTreeFails, numRTreeHits));
-  }
-
-  
   private void doModify()
   {
     ot.println();
@@ -835,29 +772,73 @@ public class JTestBench
     
     int numAdded    = 0;
     int numRemoved  = 0;
-    for (int k = 0; k < ModSet.size(); k++)
+    
+    switch (myBloom)
     {
-      if (!LP2Skip.contains(ModSet.elementAt(k)))
+      case Lovasoa:
+      case Sangupta:
       {
-        numAdded++;
-        LP2Skip.add(ModSet.elementAt(k));
+        for (int k = 0; k < ModSet.size(); k++)
+        {
+          if (!LP2Skip.contains(ModSet.elementAt(k)))
+          {
+            numAdded++;
+            LP2Skip.add(ModSet.elementAt(k));
+          }
+          else
+          {
+            numRemoved++;
+            LP2Skip.remove(ModSet.elementAt(k));
+          }
+        }
+        break;
       }
-      else
+      case R_Tree:
       {
-        numRemoved++;
-        LP2Skip.remove(ModSet.elementAt(k));
+        for (int k = 0; k < ModSet.size(); k++)
+        {
+          
+        }
       }
     }
+    this.timeModifyEnd    = this.getBeanCount();
     ot.println();
     ot.println("----*----*----");
     ot.println(String.format("Number objects added:   % 6d", numAdded));
     ot.println(String.format("Number objects removed: % 6d", numRemoved));
     ot.println("----*----*----");
-    ot.println();
-    
-    this.timeModifyEnd    = this.getBeanCount();    
+    ot.println();    
   }
-
+  /**
+   * Abstracted way to check if object o is in the Bloom used by this bench.
+   * 
+   * @param o - The object whose inclusion in the filter is to be checked 
+   * @return (boolean) outBool - Whether object o is in the Bloom
+   */
+  private boolean checkInBloom (JTheDataSetObject o)
+  {
+    boolean outBool = false;
+    try
+    {
+      switch (myBloom)
+      {
+        case Lovasoa:   {outBool = lovaBloom.contains(o); break;}
+        case Sangupta:  {outBool = sangBloom.contains(o); break;}
+        case R_Tree:
+        {
+          double[] min = {o.getMyLat(), o.getMyLon(), (double)o.getMyAlt()};
+          double[] max = {o.getMyLat(), o.getMyLon(), (double)o.getMyAlt()};
+          outBool = RTree.contains(min, max, o.getMyPay());
+          break;
+        }
+      }
+    }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+    }
+    return outBool;
+  }
   /**
    * Performs the final functions of a given Bench run.
    * 
