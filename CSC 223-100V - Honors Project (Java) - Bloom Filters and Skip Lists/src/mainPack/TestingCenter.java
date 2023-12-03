@@ -56,19 +56,17 @@ public class TestingCenter
       }
     }
     
-    final int sizeAll = 4;
+    final int sizeAll = 10_000;
     
-    strt  = sizeAll;
-    nd    = sizeAll;
-    b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 25);
+    b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, sizeAll, 75);
     b1.startup();
     
     
-    b2 = new JTestBench(seed, JBloomType.Sangupta, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 25);
+    b2 = new JTestBench(seed, JBloomType.Sangupta, JGridSysType.GARS, JSkipListType.LP2, sizeAll, 75);
     b2.startup();
     
     
-    b3 = new JTestBench(seed, JBloomType.R_Tree, JGridSysType.GARS, JSkipListType.LP2, strt, nd, 25);
+    b3 = new JTestBench(seed, JBloomType.R_Tree, JGridSysType.GARS, JSkipListType.LP2, sizeAll, 75);
     b3.startup();
     
     i.close();

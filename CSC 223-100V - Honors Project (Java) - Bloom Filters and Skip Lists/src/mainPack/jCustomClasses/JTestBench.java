@@ -151,7 +151,7 @@ public class JTestBench
   /**
    * Default for the size of the Modification Set, as a percentage of sizeSet 
    */
-  public static final int     MOD_SET_PERCENT_OF_TEST_SET = 15;
+  public static final int     MOD_SET_PERCENT_OF_TEST_SET = 50;
   /**
    * This is the conversion factor to make it easier to read
    * 
@@ -325,83 +325,11 @@ public class JTestBench
   /**
    * A short alias for console input.
    */
-//  Scanner     n;
-//  /**
-//   * A temporary String used for processing input.
-//   * 
-//   * @Note Used only by (PrintStream) n to discard bad input
-//   */
-//  String      trash;
-//  /**
-//   * Lower end of sizeTest for this series of runs.
-//   * 
-//   * @Note A power of 10 order of magnitude
-//   * @Note Expanded by expandPot() and stored in potStart
-//   */
-//  private int powersOf10Start = 0;
-//  /**
-//   * Upper end of sizeTest for this series of runs.
-//   * @Note A power of 10 order of magnitude
-//   * @Note Expanded by expandPot() and stored in potEnd
-//   */
-//  private int powersOf10End   = 0;
-//  /**
-//   * Total range over which sizeTest varies for this Bench's series of runs.
-//   * 
-//   * @Note The total number of runs in each series of runs for a given bench
-//   *        so as to cover the entire set of Orders of Magnitude for the sizes of the sets on the Bench
-//   */
-//  private int powersOf10Range = 0;
-//  /**
-//   * Lower end of sizeTest for this series of runs.
-//   * @Note This is the expanded form of powersOf10Start
-//   */
-//  private int potStart        = 0;
-//  /**
-//   * Upper end of sizeTest for this series of runs.
-//   * @Note This is the expanded form of powersOf10End
-//   */
-//  private int potEnd          = 0;
-//  /**
-//   * Expanded form of current size of the sets.
-//   * 
-//   * @Note TODO: iterate this variable over powersOf10Range
-//   */
-//  private int potCurr         = 0;
     
 /* ****************************************************************************************************************************************/
 /* **** Methods ***************************************************************************************************************************/
 /* ****************************************************************************************************************************************/
   
-//  /**
-//   * Get the range over which to iterate to empirically
-//   * determine time comlexities
-//   * 
-//   * @param powersOf10End
-//   * @param powersOf10Start
-//   * @return (int) rangeOfPowers 
-//   *         This is the number of orders of magnitude over which to iterate to emirically determine time complexity of each implementation  
-//   */
-//  private int powersRange(int powersOf10End, int powersOf10Start)
-//  {
-//    int rangeOfPowers = 0;
-//    rangeOfPowers = powersOf10Start - powersOf10End;
-//    if (rangeOfPowers < 0) {rangeOfPowers = 0;}
-//    return rangeOfPowers;
-//  }
-//  /**
-//   * Keep powers within the declared limits
-//   * 
-//   * @Note Called in constructor
-//   */
-//  private void enforcePowerLimits()
-//  {
-//    if (this.powersOf10Start < MIN_POWER) {this.powersOf10Start = MIN_POWER;}
-//    else if (this.powersOf10Start > MAX_POWER) {this.powersOf10Start = MAX_POWER;}
-//    
-//    if (this.powersOf10End < MIN_POWER) {this.powersOf10End = MIN_POWER;}
-//    else if (this.powersOf10End > MAX_POWER) {this.powersOf10End = MAX_POWER;}
-//  }
   /*******
    * Default constructor for a JTestBench object instantiation. 
    * Makes an invalid instance. 
@@ -573,7 +501,7 @@ public class JTestBench
   private void doCreate()
   {
     ot.println("*******************************************************************************************");
-    ot.println("*******************************************************************************************");
+    ot.println("************************************ START OF BENCH ***************************************");
     ot.println("*******************************************************************************************");
     ot.println();
     ot.println("*-*-*-*-*-*-*-*-*-*-*-*");
@@ -582,7 +510,7 @@ public class JTestBench
     ot.println();
     ot.println("Bloom type: " + getBloomType());
     
-    numBads  = 0;
+    int numBads  = 0;
     int numGoods = 0;
     
     /**
@@ -655,10 +583,12 @@ public class JTestBench
       tmpObjFail  = null;
     }
     this.timeCreateEnd    = this.getBeanCount();
-    /* Diagnostic: Output the number of "Bad" objects */
-    ot.println(String.format("Total number of objects in Test Set: % 6d", sizeSet));
-    ot.println(String.format("Number of \"Bad\" entries in Test Set:  % 6d", numBads));
-    ot.println(String.format("Number of \"Good\" entries in Test Set: % 6d", numGoods)); 
+
+    ot.println(String.format("Number of \"Bad\" entries in Test Set:  % ,9d", numBads));
+    ot.println(String.format("Number of \"Good\" entries in Test Set: % ,9d", numGoods));
+    ot.println(              "                                      ---------");
+    ot.println(String.format("Total number of objects in Test Set:  % ,9d", sizeSet));
+    
   }
   /**
    * 
@@ -723,8 +653,8 @@ public class JTestBench
       }
       this.timeVerifyEnd    = this.getBeanCount();
       ot.println();
-      ot.println(String.format("Bloom Fails: %1$ 8d, Bloom Hits: %2$ 8d", numBloomFails, numBloomPositives));
-      ot.println(String.format("Skip  Fails: %1$ 8d, Skip  Hits: %2$ 8d", numSkipFails, numSkipPositives));
+      ot.println(String.format("Bloom Fails: %1$ ,8d - Bloom Hits: %2$ ,8d", numBloomFails, numBloomPositives));
+      ot.println(String.format("Skip  Fails: %1$ ,8d - Skip  Hits: %2$ ,8d", numSkipFails, numSkipPositives));
       break;
       }
       case R_Tree:
@@ -746,7 +676,7 @@ public class JTestBench
         }
         this.timeVerifyEnd    = this.getBeanCount();
         ot.println();
-        ot.println(String.format("Bloom Fails: %1$ 8d, Bloom Hits: %2$ 8d", numRTreeFails, numRTreeHits));
+        ot.println(String.format("Bloom Fails: %1$ ,8d, Bloom Hits: %2$ ,8d", numRTreeFails, numRTreeHits));
       }
     }
   }
@@ -846,8 +776,8 @@ public class JTestBench
     this.timeModifyEnd    = this.getBeanCount();
     ot.println();
     ot.println("----*----*----");
-    ot.println(String.format("Number objects added:   % 8d", numAdded));
-    ot.println(String.format("Number objects removed: % 8d", numRemoved));
+    ot.println(String.format("Number objects added:   % ,8d", numAdded));
+    ot.println(String.format("Number objects removed: % ,8d", numRemoved));
     ot.println("----*----*----");
     ot.println();    
   }
@@ -925,11 +855,21 @@ public class JTestBench
     else if (x ==     1_000_000) {timeString = " (miliseconds)";}
     else if (x == 1_000_000_000) {timeString = " (seconds)";}
 
-    ot.println(String.format("Creation time:     %1$ 8d", this.timeCreateTotal) + timeString);
-    ot.println(String.format("Verification time: %1$ 8d", this.timeVerifyTotal) + timeString);
-    ot.println(String.format("Modification time: %1$ 8d", this.timeModifyTotal) + timeString);
+    ot.println(String.format("Creation time:     %1$ ,8d", this.timeCreateTotal) + timeString);
+    ot.println(String.format("Verification time: %1$ ,8d", this.timeVerifyTotal) + timeString);
+    ot.println(String.format("Modification time: %1$ ,8d", this.timeModifyTotal) + timeString);
     ot.println();
     ot.println("*******************************************************************************************");
+    ot.println("*************************************            ******************************************");
+    ot.println("***********************************  END OF BENCH  ****************************************");
+    ot.println("*************************************            ******************************************");
+    ot.println("*******************************************************************************************");
+    ot.println();
+    ot.println();
+    ot.println();
+    ot.println();
+    ot.println();
+    ot.println();
     ot.println();
     ot.println();
     ot.println();
