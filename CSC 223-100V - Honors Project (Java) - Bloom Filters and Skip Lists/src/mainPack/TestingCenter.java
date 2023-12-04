@@ -93,7 +93,7 @@ public class TestingCenter
       o.println("or enter \"c\" for console output only.");
       o.println();
       o.println("(NOTE: A prefix of \"HBS-\", for Honors Bloom)    ");
-      o.println("(Skip, and a \".txt\" extention will be automatically)");
+      o.println("(Skip, and a \".jtxt\" extention will be automatically)");
       o.println("(be added to the name. Also, any existing file with)    ");
       o.println("(this name WILL BE overwritten.)");
       o.println();
@@ -154,7 +154,7 @@ public class TestingCenter
       {
         fileName = input;
         conOnly = false;
-        fileName = "HBS-" + fileName + ".txt";
+        fileName = "HBS-" + fileName + ".jtxt";
         o.println("Filename will be: " + fileName);
         confirm = false;
         while (!confirm)
