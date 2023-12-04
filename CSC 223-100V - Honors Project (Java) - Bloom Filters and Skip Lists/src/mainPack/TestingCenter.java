@@ -46,9 +46,6 @@ public class TestingCenter
     boolean confirm     = false;
     boolean readyToTest = false;
     
-    JTestBench b1;
-    JTestBench b2;
-    JTestBench b3;
     while (!goodSeed)
     {
       try
@@ -190,7 +187,7 @@ public class TestingCenter
       }
     }
     o.println();
-    o.println("***DEBUG*** Console only: " + conOnly + " - Filename will be: " + fileName);
+//    o.println("***DEBUG*** Console only: " + conOnly + " - Filename will be: " + fileName);
     o.println();
     
     if (conOnly == false)
@@ -200,7 +197,7 @@ public class TestingCenter
         o.println("Opening a the file for writing");
         f = new PrintWriter(fileName);
         o.println("File is open.");
-        o.println(f);
+//        o.println(f);
       }
       catch (FileNotFoundException e)
       {
@@ -214,6 +211,9 @@ public class TestingCenter
       f = null;
     }
     
+    o.println("Seed is: ");
+    o.println(seed);
+    o.println();
     if (!(f == null))
     {
       f.println("Seed is: ");
@@ -221,14 +221,45 @@ public class TestingCenter
       f.println();
     }
     
+    int minSize   =      1_000; // Minimum size sets to test
+    int maxSize   =      5_000; // Maximum size sets to test 
+//    int maxSize   = 50_000_000; // Maximum size sets to test 
+    int curSize   =          0; // Current size being tested
+//    int deltaSize =         -1; // How much to increase the size for the next test
     
-    int sizeAll = 0;
+    int minFailRate   =  0; // Minimim fail rate (see below)
+    int curFailRate   =  0; // Current percent of objects in Test Set that are not in The Data Set
+    int deltaFailRate = 15; // How much to increase the fail rate for the next test
+
+    JTestBench tBenchLova;
+    JTestBench tBenchSang;
+    JTestBench tBenchRTree;
     
+    curSize = minSize;
     
-    b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, sizeAll, 75, f);
-    b1.startup();
+    while (curSize <= maxSize)
+    {
+      curFailRate = 0;
+      while (curFailRate <= 100)
+      {
+        tBenchLova = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, curSize, curFailRate, f);
+        tBenchLova.startup();
+        
+        tBenchSang = new JTestBench(seed, JBloomType.Sangupta, JGridSysType.GARS, JSkipListType.LP2, curSize, curFailRate, f);
+        tBenchSang.startup();
+        
+        tBenchRTree = new JTestBench(seed, JBloomType.R_Tree, JGridSysType.GARS, JSkipListType.LP2, curSize, curFailRate, f);
+        tBenchRTree.startup();
+        
+        curFailRate = nextFail(curFailRate);
+      }
+      curSize = nextSize(curSize);
+    }
     
-    
+//    b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, sizeAll, failRate, f);
+//    b1.startup();
+//    
+//    
 //    b2 = new JTestBench(seed, JBloomType.Sangupta, JGridSysType.GARS, JSkipListType.LP2, sizeAll, 75);
 //    b2.startup();
 //    
@@ -244,6 +275,143 @@ public class TestingCenter
     o.close();
   }
   
+  private static int nextFail (int inFail)
+  {
+    int outFail = 0;
+    
+    if (inFail < 0)
+    {
+      inFail = 0;
+      outFail = 0;
+    }
+    else if (inFail < 100)
+    {
+      outFail = inFail + 15;
+      if (outFail > 100)
+      {
+        outFail = 100;
+      }
+    }
+    else if (inFail == 100)
+    {
+      outFail = 101;
+    }
+    
+    return outFail;
+  }
+  
+  private static int nextSize (int inSize)
+  {
+    int outSize = 0;
+    
+    if      (inSize < 1_000)
+    {
+      outSize = 1_000;
+    }    
+    else if (inSize == 1_000)
+    {
+      outSize = 2_500;
+    }
+    else if (inSize == 2_500)
+    {
+      outSize = 5_000;
+    }
+    else if (inSize == 5_000)
+    {
+      outSize = 7_500;
+    }
+    else if (inSize == 7_500)
+    {
+      outSize = 10_000;
+    }
+    else if (inSize == 10_000)
+    {
+      outSize = 25_000;
+    }
+    else if (inSize == 25_000)
+    {
+      outSize = 50_000;
+    }
+    else if (inSize == 50_000)
+    {
+      outSize = 75_000;
+    }
+    else if (inSize == 75_000)
+    {
+      outSize = 100_000;
+    }
+    else if (inSize == 100_000)
+    {
+      outSize = 250_000;
+    }
+    else if (inSize == 250_000)
+    {
+      outSize = 500_000;
+    }
+    else if (inSize == 500_000)
+    {
+      outSize = 750_000;
+    }
+    else if (inSize == 750_000)
+    {
+      outSize = 1_000_000;
+    }
+    else if (inSize == 1_000_000)
+    {
+      outSize = 2_500_000;
+    }
+    else if (inSize == 2_500_000)
+    {
+      outSize = 5_000_000;
+    }
+    else if (inSize == 5_000_000)
+    {
+      outSize = 7_500_000;
+    }
+    else if (inSize == 7_500_000)
+    {
+      outSize = 10_000_000;
+    }
+    else if (inSize == 10_000_000)
+    {
+      outSize = 25_000_000;
+    }
+    else if (inSize == 25_000_000)
+    {
+      outSize = 50_000_000;
+    }
+    else if (inSize == 50_000_000)
+    {
+      outSize = 75_000_000;
+    }
+    else if (inSize == 75_000_000)
+    {
+      outSize = 100_000_000;
+    }
+    else if (inSize == 100_000_000)
+    {
+      outSize = 250_000_000;
+    }
+    else if (inSize == 250_000_000)
+    {
+      outSize = 500_000_000;
+    }
+    else if (inSize == 500_000_000)
+    {
+      outSize = 750_000_000;
+    }
+    else if (inSize == 750_000_000)
+    {
+      outSize = 1_000_000_000;
+    }
+    else if (inSize >= 1_000_000_000)
+    {
+      outSize = -1;
+    }
+    
+    return outSize;
+  }
+  
   public static void myPause()
   { 
          System.out.println("Press Enter key to continue...");
@@ -255,3 +423,106 @@ public class TestingCenter
          {}  
   }
 }
+
+/*
+--------------------------------------------------------------------------------
+----  The blank lines below are to aid me in keeping the last line of this  ----
+----  file vertically centered and above the very bottom of my very large   ---- 
+----  monitor.                                                              ----
+--------------------------------------------------------------------------------
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

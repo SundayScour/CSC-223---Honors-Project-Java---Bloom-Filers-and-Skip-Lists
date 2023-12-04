@@ -328,10 +328,11 @@ public class JTestBench
    */
   PrintWriter f;
 
-  String strBloomType    = "";
-  String strGridSysType  = "";
-  String strSkipType     = "";
-  String strSizeOfSet    = "";
+  String strBloomType   = "";
+  String strGridSysType = "";
+  String strSkipType    = "";
+  String strSizeOfSet   = "";
+  String strFailRate    = "";
   
     
 /* ****************************************************************************************************************************************/
@@ -430,7 +431,9 @@ public class JTestBench
     {
       strSkipType = "My personal Skip List implementation (not done yet)";
     }
-    strSizeOfSet = String.format("% ,12d", this.sizeSet);
+//    strSizeOfSet = String.format("% ,12d", this.sizeSet);
+    strSizeOfSet = String.valueOf(this.sizeSet);
+    strFailRate  = String.valueOf(this.myIntFailRate);
 
     /*
      * All done constructing this particular instance/instantiation of a JTestBench object.
@@ -502,6 +505,7 @@ public class JTestBench
     ot.println("*-**** Grid System:           " + strGridSysType);
     ot.println("*-**** Skip List:             " + strSkipType);
     ot.println("*-**** Size of Sets:          " + strSizeOfSet);
+    ot.println("*_**** Fail Rate of Test Set: " + strFailRate + "%");
     if (f != null)
     {
       f.println("*******************************************************************************************");
@@ -511,6 +515,7 @@ public class JTestBench
       f.println("*-**** Grid System:           " + strGridSysType);
       f.println("*-**** Skip List:             " + strSkipType);
       f.println("*-**** Size of Sets:          " + strSizeOfSet);
+      f.println("*_**** Fail Rate of Test Set: " + strFailRate + "%");      
     }
     
     /**
