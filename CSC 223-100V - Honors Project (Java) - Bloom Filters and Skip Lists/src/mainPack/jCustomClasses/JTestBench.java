@@ -305,34 +305,36 @@ public class JTestBench
   /**
    * Lovasoa Bloom Filter for this Bench.
    */
-  LovaBloomFilter                         lovaBloom;
+  private LovaBloomFilter                         lovaBloom;
   /**
    * Sangupta Bloom Filter for this Bench.
    */
-  InMemoryBloomFilter<JTheDataSetObject>  sangBloom;
+  private InMemoryBloomFilter<JTheDataSetObject>  sangBloom;
   /**
    * Skip List for this Bench.
    */
-  SkipList<JTheDataSetObject>             LP2Skip;
+  private SkipList<JTheDataSetObject>             LP2Skip;
   /**
    * R-Tree for this Bench.
    */
 //  RTree<JTheDataSetObject>                RTree;
-  RTree<String>                RTree;
+  private RTree<String>                RTree;
   /**
    * A short alias for console output.
    */
-  PrintStream ot;
+  private PrintStream ot;
   /**
    * A short alias for file output.
    */
-  PrintWriter f;
+  private PrintWriter f;
 
-  String strBloomType   = "";
-  String strGridSysType = "";
-  String strSkipType    = "";
-  String strSizeOfSet   = "";
-  String strFailRate    = "";
+  private String strBloomType   = "";
+  private String strGridSysType = "";
+  private String strSkipType    = "";
+  private String strSizeOfSet   = "";
+  private String strFailRate    = "";
+  
+  private boolean doMod;
   
     
 /* ****************************************************************************************************************************************/
@@ -362,7 +364,7 @@ public class JTestBench
    * @param inEndPowerOf10 (int) Ending (i.e. the largest) size, in power of 10, of The Data Set and Test Set during the Test Bench run
    */
   public JTestBench (long inSeed, JBloomType inBloomType, JGridSysType inGridSysType, JSkipListType inSkipListType, 
-      int inSize, int inFailRate, PrintWriter inF)
+      int inSize, int inFailRate, PrintWriter inF, boolean inDoMod)
   {
     this.mySeed           = inSeed;
     this.myBenchBean      = ManagementFactory.getThreadMXBean(); // Get ready to do some "bean counting", i.e. get CPU times
@@ -401,6 +403,7 @@ public class JTestBench
     // Instantiate object for console output
     this.ot               = new PrintStream(System.out);
     this.f                = inF;
+    this.doMod            = inDoMod;
     
     // Set the strings for this instance of JTestBench
     if      (myBloom == JBloomType.Lovasoa)
@@ -823,102 +826,105 @@ public class JTestBench
       f.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");
       f.println("*-*");      
     }
+    
+    if (doMod)
+    {
+      double modRate = (double)MOD_SET_PERCENT_OF_TEST_SET;
 
-    double modRate = (double)MOD_SET_PERCENT_OF_TEST_SET;
-    
-    // Populate the ModSet
-    for (int k = 0; k < TestSet.size(); k++)
-    {
-      if (!randFail(tbRng, modRate))
+      // Populate the ModSet
+      for (int k = 0; k < TestSet.size(); k++)
       {
-        ModSet.add(TestSet.elementAt(k));
-      }
-    }
-    ot.println("*-*   Size of ModSet: " + ModSet.size());
-    if (f != null)
-    {
-      f.println("*-*   Size of ModSet: " + ModSet.size());      
-    }
-    
-    // Modify
-    this.timeModifyStart  = this.getBeanCount();
-    
-    int numAdded    = 0;
-    int numRemoved  = 0;
-    
-    switch (myBloom)
-    {
-      case Lovasoa:
-      case Sangupta:
-      {
-        // Modify the Skip List and TheDataSet
-        for (int k = 0; k < ModSet.size(); k++)
+        if (!randFail(tbRng, modRate))
         {
-          if (!LP2Skip.contains(ModSet.elementAt(k)))
-          {
-            numAdded++;
-            LP2Skip.add(ModSet.elementAt(k));
-            TheDataSet.add(ModSet.elementAt(k));
-          }
-          else
-          {
-            numRemoved++;
-            LP2Skip.remove(ModSet.elementAt(k));
-            TheDataSet.removeElement(ModSet.elementAt(k));
-          }
-        }
-        // Rebuild the Bloom Filter
-        Iterator<JTheDataSetObject> I = LP2Skip.iterator();
-        if      (this.myBloom == JBloomType.Sangupta)
-        {
-          this.sangBloom = null;
-          this.sangBloom = new InMemoryBloomFilter<JTheDataSetObject>(sizeSet, fPosRate);
-        }
-        else if (this.myBloom == JBloomType.Lovasoa)
-        {
-          this.lovaBloom = null;
-          this.lovaBloom = new LovaBloomFilter(sizeSet, sizeLBloom);
-        }
-        while (I.hasNext())
-        {
-          addToBloom(I.next());
-        }
-        break;
-      }
-      case R_Tree:
-      {
-        for (int k = 0; k < ModSet.size(); k++)
-        {
-          JTheDataSetObject o = ModSet.elementAt(k);
-          if (!checkInBloom(o))
-          {
-            addToBloom(o);
-            numAdded++;
-          }
-          else
-          {
-            double[] removeThisPoint = {o.getMyLat(), o.getMyLon(), o.getMyAlt()}; 
-            RTree.remove(removeThisPoint, removeThisPoint, o.getMyPay());
-            numRemoved++;
-          }
+          ModSet.add(TestSet.elementAt(k));
         }
       }
-    }
-    this.timeModifyEnd    = this.getBeanCount();
-    ot.println              ("*-*");
-    ot.println              ("*-*   ----*----*----");
-    ot.println(String.format("*-*   Number objects added:   % ,12d", numAdded));
-    ot.println(String.format("*-*   Number objects removed: % ,12d", numRemoved));
-    ot.println              ("*-*   ----*----*----");
-    ot.println              ("*-*");
-    if (f != null)
-    {
-      f.println              ("*-*");
-      f.println              ("*-*   ----*----*----");
-      f.println(String.format("*-*   Number objects added:   % ,12d", numAdded));
-      f.println(String.format("*-*   Number objects removed: % ,12d", numRemoved));
-      f.println              ("*-*   ----*----*----");
-      f.println              ("*-*");      
+      ot.println("*-*   Size of ModSet: " + ModSet.size());
+      if (f != null)
+      {
+        f.println("*-*   Size of ModSet: " + ModSet.size());      
+      }
+
+      // Modify
+      this.timeModifyStart  = this.getBeanCount();
+
+      int numAdded    = 0;
+      int numRemoved  = 0;
+
+      switch (myBloom)
+      {
+        case Lovasoa:
+        case Sangupta:
+        {
+          // Modify the Skip List and TheDataSet
+          for (int k = 0; k < ModSet.size(); k++)
+          {
+            if (!LP2Skip.contains(ModSet.elementAt(k)))
+            {
+              numAdded++;
+              LP2Skip.add(ModSet.elementAt(k));
+              TheDataSet.add(ModSet.elementAt(k));
+            }
+            else
+            {
+              numRemoved++;
+              LP2Skip.remove(ModSet.elementAt(k));
+              TheDataSet.removeElement(ModSet.elementAt(k));
+            }
+          }
+          // Rebuild the Bloom Filter
+          Iterator<JTheDataSetObject> I = LP2Skip.iterator();
+          if      (this.myBloom == JBloomType.Sangupta)
+          {
+            this.sangBloom = null;
+            this.sangBloom = new InMemoryBloomFilter<JTheDataSetObject>(sizeSet, fPosRate);
+          }
+          else if (this.myBloom == JBloomType.Lovasoa)
+          {
+            this.lovaBloom = null;
+            this.lovaBloom = new LovaBloomFilter(sizeSet, sizeLBloom);
+          }
+          while (I.hasNext())
+          {
+            addToBloom(I.next());
+          }
+          break;
+        }
+        case R_Tree:
+        {
+          for (int k = 0; k < ModSet.size(); k++)
+          {
+            JTheDataSetObject o = ModSet.elementAt(k);
+            if (!checkInBloom(o))
+            {
+              addToBloom(o);
+              numAdded++;
+            }
+            else
+            {
+              double[] removeThisPoint = {o.getMyLat(), o.getMyLon(), o.getMyAlt()}; 
+              RTree.remove(removeThisPoint, removeThisPoint, o.getMyPay());
+              numRemoved++;
+            }
+          }
+        }
+      }
+      this.timeModifyEnd    = this.getBeanCount();
+      ot.println              ("*-*");
+      ot.println              ("*-*   ----*----*----");
+      ot.println(String.format("*-*   Number objects added:   % ,12d", numAdded));
+      ot.println(String.format("*-*   Number objects removed: % ,12d", numRemoved));
+      ot.println              ("*-*   ----*----*----");
+      ot.println              ("*-*");
+      if (f != null)
+      {
+        f.println              ("*-*");
+        f.println              ("*-*   ----*----*----");
+        f.println(String.format("*-*   Number objects added:   % ,12d", numAdded));
+        f.println(String.format("*-*   Number objects removed: % ,12d", numRemoved));
+        f.println              ("*-*   ----*----*----");
+        f.println              ("*-*");      
+      }
     }
   }
   /**

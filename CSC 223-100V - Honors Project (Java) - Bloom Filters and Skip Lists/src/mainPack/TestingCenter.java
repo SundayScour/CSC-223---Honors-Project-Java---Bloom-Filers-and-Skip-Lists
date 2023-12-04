@@ -221,18 +221,18 @@ public class TestingCenter
       f.println();
     }
     
-//    int minSize   =      1_000; // Minimum size sets to test
-//    int maxSize   = 50_000_000; // Maximum size sets to test
+//    int minSize   =       1_000; // Minimum size sets to test
+//    int maxSize   =  50_000_000; // Maximum size sets to test
 
-    int minSize   =     10_000; // Minimum size sets to test    
-    int maxSize   = 50_000_000; // Maximum size sets to test 
+    int minSize   =      10_000; // Minimum size sets to test    
+    int maxSize   = 250_000_000; // Maximum size sets to test 
 
     int curSize   =          0; // Current size being tested
-//    int deltaSize =         -1; // How much to increase the size for the next test
     
     int minFailRate   =  0; // Minimim fail rate (see below)
     int curFailRate   =  0; // Current percent of objects in Test Set that are not in The Data Set
-    int deltaFailRate = 15; // How much to increase the fail rate for the next test
+
+    boolean doMod = true;
 
     JTestBench tBenchLova;
     JTestBench tBenchSang;
@@ -245,13 +245,21 @@ public class TestingCenter
       curFailRate = 0;
       while (curFailRate <= 100)
       {
-        tBenchLova = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, curSize, curFailRate, f);
+        if (curSize < 500_000)
+        {
+          doMod = true;
+        }
+        else
+        {
+          doMod = false;
+        }
+        tBenchLova = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, curSize, curFailRate, f, doMod);
         tBenchLova.startup();
         
-        tBenchSang = new JTestBench(seed, JBloomType.Sangupta, JGridSysType.GARS, JSkipListType.LP2, curSize, curFailRate, f);
+        tBenchSang = new JTestBench(seed, JBloomType.Sangupta, JGridSysType.GARS, JSkipListType.LP2, curSize, curFailRate, f, doMod);
         tBenchSang.startup();
         
-        tBenchRTree = new JTestBench(seed, JBloomType.R_Tree, JGridSysType.GARS, JSkipListType.LP2, curSize, curFailRate, f);
+        tBenchRTree = new JTestBench(seed, JBloomType.R_Tree, JGridSysType.GARS, JSkipListType.LP2, curSize, curFailRate, f, doMod);
         tBenchRTree.startup();
         
         curFailRate = nextFail(curFailRate);
@@ -259,16 +267,6 @@ public class TestingCenter
       curSize = nextSize(curSize);
     }
     
-//    b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, sizeAll, failRate, f);
-//    b1.startup();
-//    
-//    
-//    b2 = new JTestBench(seed, JBloomType.Sangupta, JGridSysType.GARS, JSkipListType.LP2, sizeAll, 75);
-//    b2.startup();
-//    
-//    
-//    b3 = new JTestBench(seed, JBloomType.R_Tree, JGridSysType.GARS, JSkipListType.LP2, sizeAll, 75);
-//    b3.startup();
     
     if (f != null)
     {
