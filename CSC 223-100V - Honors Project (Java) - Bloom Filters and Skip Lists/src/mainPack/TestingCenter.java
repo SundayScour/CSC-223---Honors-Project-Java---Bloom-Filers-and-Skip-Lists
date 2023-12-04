@@ -5,6 +5,7 @@ package mainPack;
 
 import java.io.PrintStream;
 import java.util.InputMismatchException;
+import java.util.Random;
 import java.util.Scanner;
 
 import mainPack.jCustomClasses.JBloomType;
@@ -22,10 +23,9 @@ public class TestingCenter
     PrintStream o = new PrintStream(System.out);
     Scanner     i = new Scanner(System.in);
     long seed = 0;
-    String trash = "";
+    String input = "";
+    String inputCaps = "";
     boolean goodSeed = false;
-    int strt;
-    int nd;
 
     
     JTestBench b1;
@@ -38,7 +38,7 @@ public class TestingCenter
         o.println();
         o.println("**********");
         o.println();
-        o.println("Type in the seed to initialize Random(): ");
+        o.println("Type in the seed to initialize Random() or \"r\" for a random seed: ");
         o.println();
         o.print("Seed = ");
 
@@ -47,16 +47,29 @@ public class TestingCenter
       }
       catch (InputMismatchException iME)
       {
-        o.println();
-        o.println("Incorrect input. Please, try again.");
-        trash = i.next(); // Get rid of bad input
-        
-        goodSeed = false;
-        continue;
+        input = i.next();
+        inputCaps = input.toUpperCase();
+        if (inputCaps.intern() == "R")
+        {
+          Random tempR = new Random();
+          seed = tempR.nextLong();
+          goodSeed = true;
+          o.println("The Seed will be random.");
+        }
+        else
+        {
+          o.println();
+          o.println("Try again.");
+          goodSeed = false;
+          continue;
+        }
       }
     }
     
-    final int sizeAll = 10_000;
+    o.println("The seed for this run will be " + seed);
+    o.println();
+    
+    final int sizeAll = 1_000;
     
     b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, sizeAll, 75);
     b1.startup();
