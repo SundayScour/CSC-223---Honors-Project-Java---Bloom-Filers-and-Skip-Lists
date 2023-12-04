@@ -152,7 +152,7 @@ public class JTestBench
   /**
    * Default for the size of the Modification Set, as a percentage of sizeSet 
    */
-  public static final int     MOD_SET_PERCENT_OF_TEST_SET = 50;
+  public static final int     MOD_SET_PERCENT_OF_TEST_SET = 15;
   /**
    * This is the conversion factor to make it easier to read
    * 

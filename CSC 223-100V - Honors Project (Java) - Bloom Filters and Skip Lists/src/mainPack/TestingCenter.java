@@ -221,9 +221,12 @@ public class TestingCenter
       f.println();
     }
     
-    int minSize   =      1_000; // Minimum size sets to test
-    int maxSize   =      5_000; // Maximum size sets to test 
-//    int maxSize   = 50_000_000; // Maximum size sets to test 
+//    int minSize   =      1_000; // Minimum size sets to test
+//    int maxSize   = 50_000_000; // Maximum size sets to test
+
+    int minSize   =     10_000; // Minimum size sets to test    
+    int maxSize   = 50_000_000; // Maximum size sets to test 
+
     int curSize   =          0; // Current size being tested
 //    int deltaSize =         -1; // How much to increase the size for the next test
     
