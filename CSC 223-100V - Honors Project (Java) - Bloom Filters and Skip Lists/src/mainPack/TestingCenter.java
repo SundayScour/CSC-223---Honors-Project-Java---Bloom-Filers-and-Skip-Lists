@@ -257,14 +257,20 @@ public class TestingCenter
         tBenchLova = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, curSize, curFailRate, f, doMod);
         tBenchLova.startup();
         f.checkError();
+        tBenchLova = null;
+        System.gc();
         
         tBenchSang = new JTestBench(seed, JBloomType.Sangupta, JGridSysType.GARS, JSkipListType.LP2, curSize, curFailRate, f, doMod);
         tBenchSang.startup();
         f.checkError();
+        tBenchSang = null;
+        System.gc();
         
         tBenchRTree = new JTestBench(seed, JBloomType.R_Tree, JGridSysType.GARS, JSkipListType.LP2, curSize, curFailRate, f, doMod);
         tBenchRTree.startup();
         f.checkError();
+        tBenchRTree = null;
+        System.gc();
         
         curFailRate = nextFail(curFailRate);
       }
