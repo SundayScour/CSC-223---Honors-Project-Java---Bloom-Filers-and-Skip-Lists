@@ -435,7 +435,7 @@ public class JTestBench
       strSkipType = "My personal Skip List implementation (not done yet)";
     }
 //    strSizeOfSet = String.format("% ,12d", this.sizeSet);
-    strSizeOfSet = String.valueOf(this.sizeSet);
+    strSizeOfSet = String.format("% ,d", this.sizeSet);
     strFailRate  = String.valueOf(this.myIntFailRate);
 
     /*
@@ -507,7 +507,7 @@ public class JTestBench
     ot.println("*-**** Bloom Filter / R-Tree: " + strBloomType);
     ot.println("*-**** Grid System:           " + strGridSysType);
     ot.println("*-**** Skip List:             " + strSkipType);
-    ot.println("*-**** Size of Sets:          " + strSizeOfSet);
+    ot.println("*-**** Size of Sets:         " + strSizeOfSet);
     ot.println("*_**** Fail Rate of Test Set: " + strFailRate + "%");
     if (f != null)
     {
@@ -517,8 +517,9 @@ public class JTestBench
       f.println("*-**** Bloom Filter / R-Tree: " + strBloomType);
       f.println("*-**** Grid System:           " + strGridSysType);
       f.println("*-**** Skip List:             " + strSkipType);
-      f.println("*-**** Size of Sets:          " + strSizeOfSet);
-      f.println("*_**** Fail Rate of Test Set: " + strFailRate + "%");      
+      f.println("*-**** Size of Sets:         " + strSizeOfSet);
+      f.println("*_**** Fail Rate of Test Set: " + strFailRate + "%");
+      f.checkError();
     }
     
     /**
@@ -584,7 +585,7 @@ public class JTestBench
   {
     ot.println("*-*");
     ot.println("*-*----*-*-*-*-*-*-*-*-*-*-*-* ");
-    ot.println("*-*---*-      CREATION       -*");
+    ot.println("*-*---*       CREATION        *");
     ot.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");
     ot.println("*-*");
     ot.println("*-*   Bloom type: " + getBloomType());
@@ -592,11 +593,11 @@ public class JTestBench
     {
       f.println("*-*");
       f.println("*-*----*-*-*-*-*-*-*-*-*-*-*-* ");
-      f.println("*-*---*-      CREATION       -*");
+      f.println("*-*---*       CREATION        *");
       f.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");
       f.println("*-*");
       f.println("*-*   Bloom type: " + getBloomType());
-      
+      f.checkError();
     }
     
     int numBads  = 0;
@@ -682,7 +683,8 @@ public class JTestBench
       f.println(String.format("*-*   Number of \"Bad\" entries in Test Set:  % ,12d", numBads));
       f.println(String.format("*-*   Number of \"Good\" entries in Test Set: % ,12d", numGoods));
       f.println              ("*-*                                         ------------");
-      f.println(String.format("*-*   Total number of objects in Test Set:  % ,12d", sizeSet));    
+      f.println(String.format("*-*   Total number of objects in Test Set:  % ,12d", sizeSet));
+      f.checkError();
     }
     
   }
@@ -714,14 +716,15 @@ public class JTestBench
   {
     ot.println("*-*");
     ot.println("*-*----*-*-*-*-*-*-*-*-*-*-*-* ");
-    ot.println("*-*---*-     VERIFICATION    -*");
+    ot.println("*-*---*      VERIFICATION     *");
     ot.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");
     if (f != null)
     {
       f.println("*-*");
       f.println("*-*----*-*-*-*-*-*-*-*-*-*-*-* ");
-      f.println("*-*---*-     VERIFICATION    -*");
-      f.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");      
+      f.println("*-*---*      VERIFICATION     *");
+      f.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");
+      f.checkError();
     }
 
     switch (myBloom)
@@ -768,7 +771,8 @@ public class JTestBench
         f.println(String.format("*-*   Bloom Hits:  %1$ ,12d", numBloomPositives));
         f.println              ("*-*");
         f.println(String.format("*-*   Skip  Fails: %1$ ,12d", numSkipFails));
-        f.println(String.format("*-*   Skip  Hits:  %1$ ,12d", numSkipPositives));        
+        f.println(String.format("*-*   Skip  Hits:  %1$ ,12d", numSkipPositives));
+        f.checkError();
       }
       break;
       }
@@ -797,7 +801,8 @@ public class JTestBench
         {
           f.println("*-*");
           f.println(String.format("*-*   R-Tree Fails: %1$ ,12d", numRTreeFails));
-          f.println(String.format("*-*   R-Tree Hits:  %1$ ,12d", numRTreeHits));          
+          f.println(String.format("*-*   R-Tree Hits:  %1$ ,12d", numRTreeHits));
+          f.checkError();
         }
       }
     }
@@ -824,7 +829,8 @@ public class JTestBench
       f.println("*-*----*-*-*-*-*-*-*-*-*-*-*-* ");
       f.println("*-*---*     Modification      *");
       f.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");
-      f.println("*-*");      
+      f.println("*-*");
+      f.checkError();
     }
     
     if (doMod)
@@ -842,7 +848,8 @@ public class JTestBench
       ot.println("*-*   Size of ModSet: " + ModSet.size());
       if (f != null)
       {
-        f.println("*-*   Size of ModSet: " + ModSet.size());      
+        f.println("*-*   Size of ModSet: " + ModSet.size());
+        f.checkError();
       }
 
       // Modify
@@ -923,7 +930,8 @@ public class JTestBench
         f.println(String.format("*-*   Number objects added:   % ,12d", numAdded));
         f.println(String.format("*-*   Number objects removed: % ,12d", numRemoved));
         f.println              ("*-*   ----*----*----");
-        f.println              ("*-*");      
+        f.println              ("*-*");
+        f.checkError();
       }
     }
   }
@@ -985,7 +993,8 @@ public class JTestBench
       f.println("*-*----*-*-*-*-*-*-*-*-*-*-*-* ");
       f.println("*-*---*        Results        *");
       f.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");
-      f.println("*-*");      
+      f.println("*-*");
+      f.checkError();
     }
     
     this.timeCreateTotal = calcCreateTime();
@@ -1034,7 +1043,8 @@ public class JTestBench
       f.println("*******************************************************************************************");
       f.println();
       f.println();
-      f.println();      
+      f.println();
+      f.checkError();
     }
   }
   /**

@@ -219,12 +219,13 @@ public class TestingCenter
       f.println("Seed is: ");
       f.println(seed);
       f.println();
+      f.checkError();
     }
     
 //    int minSize   =       1_000; // Minimum size sets to test
 //    int maxSize   =  50_000_000; // Maximum size sets to test
 
-    int minSize   =      10_000; // Minimum size sets to test    
+    int minSize   =  10_000_000; // Minimum size sets to test    
     int maxSize   = 250_000_000; // Maximum size sets to test 
 
     int curSize   =          0; // Current size being tested
@@ -255,12 +256,15 @@ public class TestingCenter
         }
         tBenchLova = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, curSize, curFailRate, f, doMod);
         tBenchLova.startup();
+        f.checkError();
         
         tBenchSang = new JTestBench(seed, JBloomType.Sangupta, JGridSysType.GARS, JSkipListType.LP2, curSize, curFailRate, f, doMod);
         tBenchSang.startup();
+        f.checkError();
         
         tBenchRTree = new JTestBench(seed, JBloomType.R_Tree, JGridSysType.GARS, JSkipListType.LP2, curSize, curFailRate, f, doMod);
         tBenchRTree.startup();
+        f.checkError();
         
         curFailRate = nextFail(curFailRate);
       }
