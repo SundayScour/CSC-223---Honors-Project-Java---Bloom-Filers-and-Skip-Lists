@@ -245,7 +245,7 @@ public class TestingCenter
       curFailRate = 0;
       while (curFailRate <= 100)
       {
-        if (curSize < 500_000)
+        if (curSize <= 500_000)
         {
           doMod = true;
         }
@@ -287,7 +287,7 @@ public class TestingCenter
     }
     else if (inFail < 100)
     {
-      outFail = inFail + 15;
+      outFail = inFail + 20;
       if (outFail > 100)
       {
         outFail = 100;
