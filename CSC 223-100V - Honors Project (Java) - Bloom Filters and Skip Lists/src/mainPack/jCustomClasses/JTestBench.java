@@ -504,9 +504,9 @@ public class JTestBench
     ot.println("************************************ START OF BENCH ***************************************");
     ot.println("*******************************************************************************************");
     ot.println("*-*");
-    ot.println("*-*   *-*-*-*-*-*-*-*-*-*-*-* ");
-    ot.println("*-*  *-      CREATION       -*");
-    ot.println("*-*   *-*-*-*-*-*-*-*-*-*-*-* ");
+    ot.println("*-*----*-*-*-*-*-*-*-*-*-*-*-* ");
+    ot.println("*-*---*-      CREATION       -*");
+    ot.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");
     ot.println("*-*");
     ot.println("*-*   Bloom type: " + getBloomType());
     
@@ -584,10 +584,10 @@ public class JTestBench
     }
     this.timeCreateEnd    = this.getBeanCount();
 
-    ot.println(String.format("*-*   Number of \"Bad\" entries in Test Set:  % ,9d", numBads));
-    ot.println(String.format("*-*   Number of \"Good\" entries in Test Set: % ,9d", numGoods));
-    ot.println              ("*-*                                         ---------");
-    ot.println(String.format("*-*   Total number of objects in Test Set:  % ,9d", sizeSet));
+    ot.println(String.format("*-*   Number of \"Bad\" entries in Test Set:  % ,12d", numBads));
+    ot.println(String.format("*-*   Number of \"Good\" entries in Test Set: % ,12d", numGoods));
+    ot.println              ("*-*                                         ------------");
+    ot.println(String.format("*-*   Total number of objects in Test Set:  % ,12d", sizeSet));
     
   }
   /**
@@ -617,9 +617,9 @@ public class JTestBench
   private void doVerify()
   {
     ot.println("*-*");
-    ot.println("*-*   *-*-*-*-*-*-*-*-*-*-*-* ");
-    ot.println("*-*  *-     VERIFICATION    -*");
-    ot.println("*-*   *-*-*-*-*-*-*-*-*-*-*-* ");
+    ot.println("*-*----*-*-*-*-*-*-*-*-*-*-*-* ");
+    ot.println("*-*---*-     VERIFICATION    -*");
+    ot.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");
 
     switch (myBloom)
     {
@@ -653,11 +653,11 @@ public class JTestBench
       }
       this.timeVerifyEnd    = this.getBeanCount();
       ot.println              ("*-*");
-      ot.println(String.format("*-*   Bloom Fails: %1$ ,8d", numBloomFails));
-      ot.println(String.format("*-*   Bloom Hits:  %1$ ,8d", numBloomPositives));
+      ot.println(String.format("*-*   Bloom Fails: %1$ ,12d", numBloomFails));
+      ot.println(String.format("*-*   Bloom Hits:  %1$ ,12d", numBloomPositives));
       ot.println              ("*-*");
-      ot.println(String.format("*-*   Skip  Fails: %1$ ,8d", numSkipFails));
-      ot.println(String.format("*-*   Skip  Hits:  %1$ ,8d", numSkipPositives));
+      ot.println(String.format("*-*   Skip  Fails: %1$ ,12d", numSkipFails));
+      ot.println(String.format("*-*   Skip  Hits:  %1$ ,12d", numSkipPositives));
       break;
       }
       case R_Tree:
@@ -679,8 +679,8 @@ public class JTestBench
         }
         this.timeVerifyEnd    = this.getBeanCount();
         ot.println("*-*");
-        ot.println(String.format("*-*   R-Tree Fails: %1$ ,8d", numRTreeFails));
-        ot.println(String.format("*-*   R-Tree Hits:  %1$ ,8d", numRTreeHits));
+        ot.println(String.format("*-*   R-Tree Fails: %1$ ,12d", numRTreeFails));
+        ot.println(String.format("*-*   R-Tree Hits:  %1$ ,12d", numRTreeHits));
       }
     }
   }
@@ -696,9 +696,9 @@ public class JTestBench
   private void doModify()
   {
     ot.println("*-*");
-    ot.println("*-*   *-*-*-*-*-*-*-*-*-*-*-* ");
-    ot.println("*-*  *-    Modification     -*");
-    ot.println("*-*   *-*-*-*-*-*-*-*-*-*-*-* ");
+    ot.println("*-*----*-*-*-*-*-*-*-*-*-*-*-* ");
+    ot.println("*-*---*     Modification      *");
+    ot.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");
     ot.println("*-*");
 
     double modRate = (double)MOD_SET_PERCENT_OF_TEST_SET;
@@ -780,8 +780,8 @@ public class JTestBench
     this.timeModifyEnd    = this.getBeanCount();
     ot.println              ("*-*");
     ot.println              ("*-*   ----*----*----");
-    ot.println(String.format("*-*   Number objects added:   % ,8d", numAdded));
-    ot.println(String.format("*-*   Number objects removed: % ,8d", numRemoved));
+    ot.println(String.format("*-*   Number objects added:   % ,12d", numAdded));
+    ot.println(String.format("*-*   Number objects removed: % ,12d", numRemoved));
     ot.println              ("*-*   ----*----*----");
     ot.println              ("*-*");    
   }
@@ -833,9 +833,9 @@ public class JTestBench
   private void shutdown()
   {
     ot.println("*-*");
-    ot.println("*-*   *-*-*-*-*-*-*-*-*-*-*-* ");
-    ot.println("*-*  *-       Results       -*");
-    ot.println("*-*   *-*-*-*-*-*-*-*-*-*-*-* ");
+    ot.println("*-*----*-*-*-*-*-*-*-*-*-*-*-* ");
+    ot.println("*-*---*        Results        *");
+    ot.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");
     ot.println("*-*");
     
     this.timeCreateTotal = calcCreateTime();
@@ -859,9 +859,9 @@ public class JTestBench
     else if (x ==     1_000_000) {timeString = " (miliseconds)";}
     else if (x == 1_000_000_000) {timeString = " (seconds)";}
 
-    ot.println(String.format("*-*   Creation time:     %1$ ,8d", this.timeCreateTotal) + timeString);
-    ot.println(String.format("*-*   Verification time: %1$ ,8d", this.timeVerifyTotal) + timeString);
-    ot.println(String.format("*-*   Modification time: %1$ ,8d", this.timeModifyTotal) + timeString);
+    ot.println(String.format("*-*   Creation time:     %1$ ,12d", this.timeCreateTotal) + timeString);
+    ot.println(String.format("*-*   Verification time: %1$ ,12d", this.timeVerifyTotal) + timeString);
+    ot.println(String.format("*-*   Modification time: %1$ ,12d", this.timeModifyTotal) + timeString);
     ot.println("*-*");
     ot.println("*******************************************************************************************");
     ot.println("*************************************            ******************************************");
