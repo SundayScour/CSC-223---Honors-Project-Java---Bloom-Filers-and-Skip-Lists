@@ -367,14 +367,8 @@ public class JTheDataSetObject implements Comparable<JTheDataSetObject>
   {
     double alt = (double)this.myAlt;
     double myEntry[] = {this.myLat, this.myLon, alt};
-//    return importedImplementations.TinSpinIndexes.index.rtree.RTreeEntry.createPoint(myEntry, null);
+    
     return importedImplementations.TinSpinIndexes.index.rtree.RTreeEntry.createPoint(myEntry, myPay);
-    
-    
-//    return importedImplementations.TinSpinIndexes.index.rtree.RTreeEntry.createPoint(myEntry, <double[]>);
-//    return importedImplementations.TinSpinIndexes.index.rtree.RTreeEntry.createPoint(myEntry, <double[]>);
-//    return importedImplementations.TinSpinIndexes.index.rtree.RTreeEntry.createPoint(myEntry, <double[]>);
-//    return importedImplementations.TinSpinIndexes.index.rtree.RTreeEntry.createPoint(myEntry, <double[]>);
   }
 
 

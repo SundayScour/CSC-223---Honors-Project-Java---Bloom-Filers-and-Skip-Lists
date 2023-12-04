@@ -1,8 +1,19 @@
 /**
+ * @Project: CSC 223-100V - Honors Project (Java) - Bloom Filters and Skip Lists
  * 
+ * @FileName:                 TestingCenter.java
+ * @OriginalFileCreationDate: Dec 3, 2023
+ * 
+ * @Author:           Jonathan Wayne Edwards
+ * @GitHubUserName:   SundayScour
+ * @GutHubUserEmail:  sunday_scour@aol.com
+ * 
+ * @EnclosingPackage: mainPack
+ * @ClassName:        TestingCenter
  */
 package mainPack;
 
+import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.InputMismatchException;
@@ -23,16 +34,17 @@ public class TestingCenter
   {
     PrintStream o = new PrintStream(System.out);
     Scanner     i = new Scanner(System.in);
-    PrintWriter p;
+    PrintWriter f = null;
     
-    long seed         = 0;
-    String input      = "";
-    String inputCaps  = "";
-    boolean goodSeed  = false;
-    boolean goodName  = false;
-    boolean conOnly   = false;
-    String fileName   = "";
-    boolean confirm   = false;
+    long seed           = 0;
+    String input        = "";
+    String inputCaps    = "";
+    boolean goodSeed    = false;
+    boolean goodName    = false;
+    boolean conOnly     = false;
+    String fileName     = "";
+    boolean confirm     = false;
+    boolean readyToTest = false;
     
     JTestBench b1;
     JTestBench b2;
@@ -85,7 +97,7 @@ public class TestingCenter
       o.println("(be added to the name. Also, any existing file with)    ");
       o.println("(this name WILL BE overwritten.)");
       o.println();
-      o.println("Filname can be between 1 and 100 characters,");
+      o.println("Filname can be between 2 and 100 characters,");
       o.println("inclusive.");
       o.println();
       o.print("Filename: ");
@@ -129,7 +141,7 @@ public class TestingCenter
           }
         }
       }
-      else if ((input.length() < 3) || (input.length() > 6))
+      else if ((input.length() < 2) || (input.length() > 100))
       {
         o.println();
         o.println("*** Filename is incorrect length. Try again ***");
@@ -177,11 +189,42 @@ public class TestingCenter
         }
       }
     }
-    o.println(" **DEBUG** " + fileName);
+    o.println();
+    o.println("***DEBUG*** Console only: " + conOnly + " - Filename will be: " + fileName);
+    o.println();
+    
+    if (conOnly == false)
+    {
+      try
+      {
+        o.println("Opening a the file for writing");
+        f = new PrintWriter(fileName);
+        o.println("File is open.");
+        o.println(f);
+      }
+      catch (FileNotFoundException e)
+      {
+        o.println("Unable to open file.");
+        e.printStackTrace();
+        readyToTest = false;
+      }
+    }
+    else
+    {
+      f = null;
+    }
+    
+    if (!(f == null))
+    {
+      f.println("Seed is: ");
+      f.println(seed);
+      f.println();
+    }
+    
     
     final int sizeAll = 100_000;
     
-    b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, sizeAll, 75);
+    b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, sizeAll, 75, f);
     b1.startup();
     
     
@@ -192,8 +235,12 @@ public class TestingCenter
 //    b3 = new JTestBench(seed, JBloomType.R_Tree, JGridSysType.GARS, JSkipListType.LP2, sizeAll, 75);
 //    b3.startup();
     
+    if (f != null)
+    {
+      f.close();
+    }
     i.close();
-    o.close();    
+    o.close();
   }
   
   public static void myPause()

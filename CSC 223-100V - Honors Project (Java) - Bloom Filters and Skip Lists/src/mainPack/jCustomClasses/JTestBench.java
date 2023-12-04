@@ -30,6 +30,7 @@ import java.util.Stack;
 import java.util.Vector;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 
@@ -323,8 +324,14 @@ public class JTestBench
    */
   PrintStream ot;
   /**
-   * A short alias for console input.
+   * A short alias for file output.
    */
+  PrintWriter f;
+
+  String bloomType    = "";
+  String gridSysType  = "";
+  String skipType     = "";
+  
     
 /* ****************************************************************************************************************************************/
 /* **** Methods ***************************************************************************************************************************/
@@ -353,7 +360,7 @@ public class JTestBench
    * @param inEndPowerOf10 (int) Ending (i.e. the largest) size, in power of 10, of The Data Set and Test Set during the Test Bench run
    */
   public JTestBench (long inSeed, JBloomType inBloomType, JGridSysType inGridSysType, JSkipListType inSkipListType, 
-      int inSize, int inFailRate)
+      int inSize, int inFailRate, PrintWriter inF)
   {
     this.mySeed           = inSeed;
     this.myBenchBean      = ManagementFactory.getThreadMXBean(); // Get ready to do some "bean counting", i.e. get CPU times
@@ -375,7 +382,38 @@ public class JTestBench
     
     // Instantiate object for console output
     this.ot               = new PrintStream(System.out);
+    this.f                = inF;
     
+    // Set the strings for this instance of JTestBench
+    if      (myBloom == JBloomType.Lovasoa)
+    {
+      bloomType = "Lovasoa Bloom Filter";
+    }
+    else if (myBloom == JBloomType.Sangupta)
+    {
+      bloomType = "Sandeep Gupta Bloom Filter";
+    }
+    else if (myBloom == JBloomType.R_Tree)
+    {
+      bloomType = "TinSpin Indexes R*-Tree";
+    }  
+    if      (myGrid == JGridSysType.GARS)
+    {
+      gridSysType = "Global Area Reference System";
+    }
+    else if (myGrid == JGridSysType.MGRS)
+    {
+      gridSysType = "Military Grid Reference System";
+    }
+    if (mySkip == JSkipListType.LP2)
+    {
+      skipType = "Long Project 2 Skip List";
+    }
+    else if (mySkip == JSkipListType.myImpl)
+    {
+      skipType = "My personal Skip List implementation (not done yet)";
+    }
+
     /*
      * All done constructing this particular instance/instantiation of a JTestBench object.
      * It is valid.
@@ -438,6 +476,22 @@ public class JTestBench
     this.fPosRate    = SANGUPTA_BLOOM_FALSE_POSITIVE_RATE; // False positivity rate in a Sangupta Bloom Filter
     this.bitsPerObj  = LOVASOA_BLOOM_BITS_PER_OBJECT; // Number of bits per object in a Lovasoa Bloom Filter
     this.sizeLBloom  = sizeSet * bitsPerObj;         // Size passed into Lovasoa Bloom Filters
+        
+    ot.println("*******************************************************************************************");
+    ot.println("************************************ START OF BENCH ***************************************");
+    ot.println("*******************************************************************************************");
+    ot.println("*-**** Bloom Filter / R-Tree: " + bloomType);
+    ot.println("*-**** Grid System:           " + gridSysType);
+    ot.println("*-**** Skip List:             " + skipType);
+    if (f != null)
+    {
+      f.println("*******************************************************************************************");
+      f.println("************************************ START OF BENCH ***************************************");
+      f.println("*******************************************************************************************");      
+      f.println("*-**** Bloom Filter / R-Tree: " + bloomType);
+      f.println("*-**** Grid System:           " + gridSysType);
+      f.println("*-**** Skip List:             " + skipType);
+    }
     
     /**
      * Creation of the data sets.
@@ -500,15 +554,22 @@ public class JTestBench
    */
   private void doCreate()
   {
-    ot.println("*******************************************************************************************");
-    ot.println("************************************ START OF BENCH ***************************************");
-    ot.println("*******************************************************************************************");
     ot.println("*-*");
     ot.println("*-*----*-*-*-*-*-*-*-*-*-*-*-* ");
     ot.println("*-*---*-      CREATION       -*");
     ot.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");
     ot.println("*-*");
     ot.println("*-*   Bloom type: " + getBloomType());
+    if (f != null)
+    {
+      f.println("*-*");
+      f.println("*-*----*-*-*-*-*-*-*-*-*-*-*-* ");
+      f.println("*-*---*-      CREATION       -*");
+      f.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");
+      f.println("*-*");
+      f.println("*-*   Bloom type: " + getBloomType());
+      
+    }
     
     int numBads  = 0;
     int numGoods = 0;
@@ -588,6 +649,13 @@ public class JTestBench
     ot.println(String.format("*-*   Number of \"Good\" entries in Test Set: % ,12d", numGoods));
     ot.println              ("*-*                                         ------------");
     ot.println(String.format("*-*   Total number of objects in Test Set:  % ,12d", sizeSet));
+    if (f != null)
+    {
+      f.println(String.format("*-*   Number of \"Bad\" entries in Test Set:  % ,12d", numBads));
+      f.println(String.format("*-*   Number of \"Good\" entries in Test Set: % ,12d", numGoods));
+      f.println              ("*-*                                         ------------");
+      f.println(String.format("*-*   Total number of objects in Test Set:  % ,12d", sizeSet));    
+    }
     
   }
   /**
@@ -620,6 +688,13 @@ public class JTestBench
     ot.println("*-*----*-*-*-*-*-*-*-*-*-*-*-* ");
     ot.println("*-*---*-     VERIFICATION    -*");
     ot.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");
+    if (f != null)
+    {
+      f.println("*-*");
+      f.println("*-*----*-*-*-*-*-*-*-*-*-*-*-* ");
+      f.println("*-*---*-     VERIFICATION    -*");
+      f.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");      
+    }
 
     switch (myBloom)
     {
@@ -658,6 +733,15 @@ public class JTestBench
       ot.println              ("*-*");
       ot.println(String.format("*-*   Skip  Fails: %1$ ,12d", numSkipFails));
       ot.println(String.format("*-*   Skip  Hits:  %1$ ,12d", numSkipPositives));
+      if (f != null)
+      {
+        f.println              ("*-*");
+        f.println(String.format("*-*   Bloom Fails: %1$ ,12d", numBloomFails));
+        f.println(String.format("*-*   Bloom Hits:  %1$ ,12d", numBloomPositives));
+        f.println              ("*-*");
+        f.println(String.format("*-*   Skip  Fails: %1$ ,12d", numSkipFails));
+        f.println(String.format("*-*   Skip  Hits:  %1$ ,12d", numSkipPositives));        
+      }
       break;
       }
       case R_Tree:
@@ -681,6 +765,12 @@ public class JTestBench
         ot.println("*-*");
         ot.println(String.format("*-*   R-Tree Fails: %1$ ,12d", numRTreeFails));
         ot.println(String.format("*-*   R-Tree Hits:  %1$ ,12d", numRTreeHits));
+        if (f != null)
+        {
+          f.println("*-*");
+          f.println(String.format("*-*   R-Tree Fails: %1$ ,12d", numRTreeFails));
+          f.println(String.format("*-*   R-Tree Hits:  %1$ ,12d", numRTreeHits));          
+        }
       }
     }
   }
@@ -700,6 +790,14 @@ public class JTestBench
     ot.println("*-*---*     Modification      *");
     ot.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");
     ot.println("*-*");
+    if (f != null)
+    {
+      f.println("*-*");
+      f.println("*-*----*-*-*-*-*-*-*-*-*-*-*-* ");
+      f.println("*-*---*     Modification      *");
+      f.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");
+      f.println("*-*");      
+    }
 
     double modRate = (double)MOD_SET_PERCENT_OF_TEST_SET;
     
@@ -712,6 +810,10 @@ public class JTestBench
       }
     }
     ot.println("*-*   Size of ModSet: " + ModSet.size());
+    if (f != null)
+    {
+      f.println("*-*   Size of ModSet: " + ModSet.size());      
+    }
     
     // Modify
     this.timeModifyStart  = this.getBeanCount();
@@ -783,7 +885,16 @@ public class JTestBench
     ot.println(String.format("*-*   Number objects added:   % ,12d", numAdded));
     ot.println(String.format("*-*   Number objects removed: % ,12d", numRemoved));
     ot.println              ("*-*   ----*----*----");
-    ot.println              ("*-*");    
+    ot.println              ("*-*");
+    if (f != null)
+    {
+      f.println              ("*-*");
+      f.println              ("*-*   ----*----*----");
+      f.println(String.format("*-*   Number objects added:   % ,12d", numAdded));
+      f.println(String.format("*-*   Number objects removed: % ,12d", numRemoved));
+      f.println              ("*-*   ----*----*----");
+      f.println              ("*-*");      
+    }
   }
   /**
    * Abstracted way to check if object o is in the Bloom used by this bench.
@@ -837,6 +948,14 @@ public class JTestBench
     ot.println("*-*---*        Results        *");
     ot.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");
     ot.println("*-*");
+    if (f != null)
+    {
+      f.println("*-*");
+      f.println("*-*----*-*-*-*-*-*-*-*-*-*-*-* ");
+      f.println("*-*---*        Results        *");
+      f.println("*-*    *-*-*-*-*-*-*-*-*-*-*-* ");
+      f.println("*-*");      
+    }
     
     this.timeCreateTotal = calcCreateTime();
     this.timeVerifyTotal = calcVerifyTime();
@@ -871,6 +990,21 @@ public class JTestBench
     ot.println();
     ot.println();
     ot.println();
+    if (f != null)
+    {
+      f.println(String.format("*-*   Creation time:     %1$ ,12d", this.timeCreateTotal) + timeString);
+      f.println(String.format("*-*   Verification time: %1$ ,12d", this.timeVerifyTotal) + timeString);
+      f.println(String.format("*-*   Modification time: %1$ ,12d", this.timeModifyTotal) + timeString);
+      f.println("*-*");
+      f.println("*******************************************************************************************");
+      f.println("*************************************            ******************************************");
+      f.println("***********************************  END OF BENCH  ****************************************");
+      f.println("*************************************            ******************************************");
+      f.println("*******************************************************************************************");
+      f.println();
+      f.println();
+      f.println();      
+    }
   }
   /**
    * A simple method to timestamp various points of this 
