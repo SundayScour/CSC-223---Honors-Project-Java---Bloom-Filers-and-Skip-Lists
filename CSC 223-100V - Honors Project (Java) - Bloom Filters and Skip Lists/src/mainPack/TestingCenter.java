@@ -222,7 +222,8 @@ public class TestingCenter
     }
     
     
-    final int sizeAll = 100_000;
+    int sizeAll = 0;
+    
     
     b1 = new JTestBench(seed, JBloomType.Lovasoa, JGridSysType.GARS, JSkipListType.LP2, sizeAll, 75, f);
     b1.startup();

@@ -328,9 +328,10 @@ public class JTestBench
    */
   PrintWriter f;
 
-  String bloomType    = "";
-  String gridSysType  = "";
-  String skipType     = "";
+  String strBloomType    = "";
+  String strGridSysType  = "";
+  String strSkipType     = "";
+  String strSizeOfSet    = "";
   
     
 /* ****************************************************************************************************************************************/
@@ -369,9 +370,25 @@ public class JTestBench
     this.myBloom          = inBloomType;
     this.myGrid           = inGridSysType;
     this.mySkip           = inSkipListType;
+    if (inSize < 2)
+    {
+      inSize = 2;
+    }
+    if (inSize > 1_000_000_000)
+    {
+      inSize = 1_000_000_000;
+    }
     this.sizeSet          = inSize;
 
     // Number of times each Bloom Filter will reject Test Set objects, because an object is not in The Data Set
+    if (inFailRate < 0)
+    {
+      inFailRate = 0;
+    }
+    if (inFailRate > 100)
+    {
+      inFailRate = 100;
+    }
     this.myIntFailRate    = inFailRate;
     this.myFRate          = inFailRate / (double)100;
     
@@ -387,32 +404,33 @@ public class JTestBench
     // Set the strings for this instance of JTestBench
     if      (myBloom == JBloomType.Lovasoa)
     {
-      bloomType = "Lovasoa Bloom Filter";
+      strBloomType = "Lovasoa Bloom Filter";
     }
     else if (myBloom == JBloomType.Sangupta)
     {
-      bloomType = "Sandeep Gupta Bloom Filter";
+      strBloomType = "Sandeep Gupta Bloom Filter";
     }
     else if (myBloom == JBloomType.R_Tree)
     {
-      bloomType = "TinSpin Indexes R*-Tree";
+      strBloomType = "TinSpin Indexes R*-Tree";
     }  
     if      (myGrid == JGridSysType.GARS)
     {
-      gridSysType = "Global Area Reference System";
+      strGridSysType = "Global Area Reference System";
     }
     else if (myGrid == JGridSysType.MGRS)
     {
-      gridSysType = "Military Grid Reference System";
+      strGridSysType = "Military Grid Reference System";
     }
     if (mySkip == JSkipListType.LP2)
     {
-      skipType = "Long Project 2 Skip List";
+      strSkipType = "Long Project 2 Skip List";
     }
     else if (mySkip == JSkipListType.myImpl)
     {
-      skipType = "My personal Skip List implementation (not done yet)";
+      strSkipType = "My personal Skip List implementation (not done yet)";
     }
+    strSizeOfSet = String.format("% ,12d", this.sizeSet);
 
     /*
      * All done constructing this particular instance/instantiation of a JTestBench object.
@@ -480,17 +498,19 @@ public class JTestBench
     ot.println("*******************************************************************************************");
     ot.println("************************************ START OF BENCH ***************************************");
     ot.println("*******************************************************************************************");
-    ot.println("*-**** Bloom Filter / R-Tree: " + bloomType);
-    ot.println("*-**** Grid System:           " + gridSysType);
-    ot.println("*-**** Skip List:             " + skipType);
+    ot.println("*-**** Bloom Filter / R-Tree: " + strBloomType);
+    ot.println("*-**** Grid System:           " + strGridSysType);
+    ot.println("*-**** Skip List:             " + strSkipType);
+    ot.println("*-**** Size of Sets:          " + strSizeOfSet);
     if (f != null)
     {
       f.println("*******************************************************************************************");
       f.println("************************************ START OF BENCH ***************************************");
       f.println("*******************************************************************************************");      
-      f.println("*-**** Bloom Filter / R-Tree: " + bloomType);
-      f.println("*-**** Grid System:           " + gridSysType);
-      f.println("*-**** Skip List:             " + skipType);
+      f.println("*-**** Bloom Filter / R-Tree: " + strBloomType);
+      f.println("*-**** Grid System:           " + strGridSysType);
+      f.println("*-**** Skip List:             " + strSkipType);
+      f.println("*-**** Size of Sets:          " + strSizeOfSet);
     }
     
     /**
