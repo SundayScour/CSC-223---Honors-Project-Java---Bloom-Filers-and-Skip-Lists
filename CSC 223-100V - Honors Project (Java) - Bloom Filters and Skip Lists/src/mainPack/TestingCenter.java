@@ -222,11 +222,11 @@ public class TestingCenter
       f.checkError();
     }
     
-//    int minSize   =       1_000; // Minimum size sets to test
-//    int maxSize   =  50_000_000; // Maximum size sets to test
+    int minSize   =       1_000; // Minimum size sets to test
+    int maxSize   =  50_000_000; // Maximum size sets to test
 
-    int minSize   =  10_000_000; // Minimum size sets to test    
-    int maxSize   = 250_000_000; // Maximum size sets to test 
+//    int minSize   =  50_000_000; // Minimum size sets to test    
+//    int maxSize   = 100_000_000; // Maximum size sets to test 
 
     int curSize   =          0; // Current size being tested
     
